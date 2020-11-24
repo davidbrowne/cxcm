@@ -7,8 +7,22 @@
 
 #include <limits>
 #include <type_traits>
-#include <cmath>
 #include <concepts>
+#include <cmath>
+
+//
+// ConstXpr CMath (cxcm)
+//
+
+// version info
+
+constexpr inline int CXCM_MAJOR_VERSION = 0;
+constexpr inline int CXCM_MINOR_VERSION = 1;
+constexpr inline int CXCM_PATCH_VERSION = 0;
+
+#define CXCM_MAJOR_VERSION 0
+#define CXCM_MINOR_VERSION 1
+#define CXCM_PATCH_VERSION 0
 
 namespace cxcm
 {
