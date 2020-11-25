@@ -20,10 +20,6 @@ constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 1;
 constexpr inline int CXCM_PATCH_VERSION = 0;
 
-#define CXCM_MAJOR_VERSION 0
-#define CXCM_MINOR_VERSION 1
-#define CXCM_PATCH_VERSION 0
-
 namespace cxcm
 {
 
@@ -135,12 +131,6 @@ namespace cxcm
 			// truncation rounds to zero which is right direction for positive values,
 			// but we need to go the other way for negative values.
 
-			// this attempt at branchless code actually is slower:
-//			return (truncated_value - T(truncated_value > value));
-
-			// using the ternary operator doesn't speed it up
-//			return (truncated_value > value) ? (truncated_value - T(1.0f)) : truncated_value;
-
 			// negative non-integral value
 			if (truncated_value > value)
 				return (truncated_value - T(1.0f));
@@ -162,12 +152,6 @@ namespace cxcm
 
 			// truncation rounds to zero which is right direction for negative values,
 			// but we need to go the other way for positive values.
-
-			// this attempt at branchless code actually is slower:
-//			return (truncated_value + T(truncated_value < value));
-
-			// using the ternary operator doesn't speed it up
-//			return (truncated_value < value) ? (truncated_value + T(1.0f)) : truncated_value;
 
 			// positive non-integral value
 			if (truncated_value < value)
@@ -194,6 +178,42 @@ namespace cxcm
 
 			// negative or zero value, taking care of halfway case.
 			return trunc(value - T(0.5f));
+		}
+
+		//
+		// sqrt()
+		//
+
+		// not an exact replacement for std::sqrt(), but close:
+		//		75% of the time gives same answer as std::sqrt() (for float)
+		//		25% of the time gives answer within 1 ulp of std::sqrt() (for float)
+		//
+		// uses Newton-Raphson
+
+		template <std::floating_point T>
+		constexpr T sqrt(T arg) noexcept
+		{
+			T current_value = arg;
+			T previous_value = T(0);
+
+			if (arg < T(1))
+			{
+				while (current_value != previous_value)
+				{
+					previous_value = current_value;
+					current_value = T(0.5) * (current_value + (arg / current_value));
+				}
+			}
+			else
+			{
+				while (current_value != previous_value)
+				{
+					previous_value = current_value;
+					current_value = (T(0.5) * current_value) + (T(0.5) * (arg / current_value));
+				}
+			}
+
+			return current_value;
 		}
 
 	} // namespace relaxed
@@ -384,6 +404,27 @@ namespace cxcm
 				return relaxed::round(value);
 			}
 
+			//
+			// constexpr_sqrt()
+			//
+
+			template <std::floating_point T>
+			constexpr T constexpr_sqrt(T value) noexcept
+			{
+				// screen out unnecessary input
+
+				// arg < 0, return NaN
+				if (value < 0)
+					return std::numeric_limits<T>::quiet_NaN();
+
+				// arg == +infinity or +/-0, return val unmodified
+				// arg == NaN, return Nan
+				if (!isnormal_or_subnormal(value))
+					return value;
+
+				return relaxed::sqrt(value);
+			}
+
 		} // namespace detail
 
 		//
@@ -558,6 +599,35 @@ namespace cxcm
 		constexpr T round(T value) noexcept
 		{
 			return detail::constexpr_round(value);
+		}
+
+#endif
+
+		//
+		// sqrt()
+		//
+
+#if defined(ALLOW_NON_CONST_EVAL_SPECIALIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+
+		template <std::floating_point T>
+		constexpr T sqrt(T value) noexcept
+		{
+			if (std::is_constant_evaluated())
+			{
+				return detail::constexpr_sqrt(value);
+			}
+			else
+			{
+				return std::sqrt(value);
+			}
+		}
+
+#else
+
+		template <std::floating_point T>
+		constexpr T sqrt(T value) noexcept
+		{
+			return detail::constexpr_sqrt(value);
 		}
 
 #endif
