@@ -185,8 +185,8 @@ namespace cxcm
 		//
 
 		// not an exact replacement for std::sqrt(), but close:
-		//		75% of the time gives same answer as std::sqrt() (for float)
-		//		25% of the time gives answer within 1 ulp of std::sqrt() (for float)
+		//		75% of the time gives same answer as std::sqrt()
+		//		25% of the time gives answer within 1 ulp of std::sqrt()
 		//
 		// uses Newton-Raphson
 
@@ -196,24 +196,20 @@ namespace cxcm
 			T current_value = arg;
 			T previous_value = T(0);
 
-			if (arg < T(1))
+			while (current_value != previous_value)
 			{
-				while (current_value != previous_value)
-				{
-					previous_value = current_value;
-					current_value = T(0.5) * (current_value + (arg / current_value));
-				}
-			}
-			else
-			{
-				while (current_value != previous_value)
-				{
-					previous_value = current_value;
-					current_value = (T(0.5) * current_value) + (T(0.5) * (arg / current_value));
-				}
+				previous_value = current_value;
+				current_value = (T(0.5) * current_value) + (T(0.5) * (arg / current_value));
 			}
 
 			return current_value;
+		}
+
+		// float specialization - uses double internally -- should be 100% compliant with std::sqrt
+		template <>
+		constexpr float sqrt(float value) noexcept
+		{
+			return static_cast<float>(sqrt(static_cast<double>(value)));
 		}
 
 	} // namespace relaxed
