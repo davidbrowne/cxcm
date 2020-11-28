@@ -184,14 +184,11 @@ namespace cxcm
 		// sqrt()
 		//
 
-		// not an exact replacement for std::sqrt(), but close:
+		//	By itself, converging_sqrt() over all the 32-bit floats gives:
 		//		75% of the time gives same answer as std::sqrt()
 		//		25% of the time gives answer within 1 ulp of std::sqrt()
-		//
-		// uses Newton-Raphson
-
 		template <std::floating_point T>
-		constexpr T sqrt(T arg) noexcept
+		constexpr T converging_sqrt(T arg) noexcept
 		{
 			T current_value = arg;
 			T previous_value = T(0);
@@ -203,6 +200,29 @@ namespace cxcm
 			}
 
 			return current_value;
+		}
+
+		// unsure of the accuracy of this function, but it makes sqrt() more accurate.
+		template <std::floating_point T>
+		constexpr T inverse_sqrt(T arg) noexcept
+		{
+			T current_value = 1 / converging_sqrt(arg);
+
+			current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);
+			current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);
+			current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);
+
+			return current_value;
+		}
+
+		//	This version with inverse_sqrt(), when used over all the 32-bit floats gives:
+		//		~76.5% same result as std::sqrt
+		//		~23.5% within 1 ulp
+		//	Some tests with double indicate ~90.33% same result as std::sqrt, ~9.66% off by 1 ulp
+		template <std::floating_point T>
+		constexpr T sqrt(T arg) noexcept
+		{
+			return arg * inverse_sqrt(arg);
 		}
 
 		// float specialization - uses double internally -- should be 100% compliant with std::sqrt
@@ -409,16 +429,44 @@ namespace cxcm
 			{
 				// screen out unnecessary input
 
-				// arg < 0, return NaN
-				if (value < 0)
-					return std::numeric_limits<T>::quiet_NaN();
-
 				// arg == +infinity or +/-0, return val unmodified
 				// arg == NaN, return Nan
 				if (!isnormal_or_subnormal(value))
 					return value;
 
+				// arg < 0, return NaN
+				if (value < T(0.0))
+					return std::numeric_limits<T>::quiet_NaN();
+
 				return relaxed::sqrt(value);
+			}
+
+			//
+			// constexpr_inverse_sqrt()
+			//
+
+			template <std::floating_point T>
+			constexpr T constexpr_inverse_sqrt(T value) noexcept
+			{
+				// screen out unnecessary input
+
+				// arg == NaN, return Nan
+				if (isnan(value))
+					return value;
+
+				// arg == +infinity , return 0
+				if ((value == std::numeric_limits<T>::infinity()))
+					return T(0.0);
+
+				// arg == -infinity or +/-0, return Nan
+				if (!isnormal_or_subnormal(value))
+					return std::numeric_limits<T>::quiet_NaN();
+
+				// arg <= 0, return NaN
+				if (value <= T(0.0))
+					return std::numeric_limits<T>::quiet_NaN();
+
+				return relaxed::inverse_sqrt(value);
 			}
 
 		} // namespace detail
@@ -624,6 +672,35 @@ namespace cxcm
 		constexpr T sqrt(T value) noexcept
 		{
 			return detail::constexpr_sqrt(value);
+		}
+
+#endif
+
+		//
+		// rsqrt() - inverse square root
+		//
+
+#if defined(ALLOW_NON_CONST_EVAL_SPECIALIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+
+		template <std::floating_point T>
+		constexpr T rsqrt(T value) noexcept
+		{
+			if (std::is_constant_evaluated())
+			{
+				return detail::constexpr_inverse_sqrt(value);
+			}
+			else
+			{
+				return T(1.0) / std::sqrt(value);
+			}
+		}
+
+#else
+
+		template <std::floating_point T>
+		constexpr T rsqrt(T value) noexcept
+		{
+			return detail::constexpr_inverse_sqrt(value);
 		}
 
 #endif
