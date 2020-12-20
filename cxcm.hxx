@@ -18,7 +18,7 @@
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 0;
+constexpr inline int CXCM_PATCH_VERSION = 1;
 
 namespace cxcm
 {
@@ -184,48 +184,84 @@ namespace cxcm
 		// sqrt()
 		//
 
+		namespace detail
+		{
 		//	By itself, converging_sqrt() over all the 32-bit floats gives:
 		//		75% of the time gives same answer as std::sqrt()
 		//		25% of the time gives answer within 1 ulp of std::sqrt()
-		template <std::floating_point T>
-		constexpr T converging_sqrt(T arg) noexcept
-		{
-			T current_value = arg;
-			T previous_value = T(0);
-
-			while (current_value != previous_value)
+			template <std::floating_point T>
+			constexpr T converging_sqrt(T arg) noexcept
 			{
-				previous_value = current_value;
-				current_value = (T(0.5) * current_value) + (T(0.5) * (arg / current_value));
+				T current_value = arg;
+				T previous_value = T(0);
+
+				while (current_value != previous_value)
+				{
+					previous_value = current_value;
+					current_value = (T(0.5) * current_value) + (T(0.5) * (arg / current_value));
+				}
+
+				return current_value;
 			}
 
-			return current_value;
+			// 2 refinements:
+			// all floats: 71.05% same as reciprocal of std::sqrt(), 28.95% apparently within 1 ulp.
+			// a double sample of (2^52, 2^52 + 2^31-1] 62.01% exact match, 37.99% apparently within 1 ulp
+			// best for implementing rsqrt()
+			template <std::floating_point T>
+			constexpr T inverse_sqrt_two_refinements(T arg) noexcept
+			{
+				T current_value = T(1.0) / converging_sqrt(arg);
+
+				current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);					// first refinement
+				current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);					// second refinement
+
+				return current_value;
+			}
+
+			// 3 refinements:
+			// all floats: 62.65% same as reciprocal of std::sqrt(), 37.35% apparently within 1 ulp.
+			// a double sample of (2^52, 2^52 + 2^31-1] 50% exact match, 50% apparently within 1 ulp
+			// best for implementing sqrt()
+			template <std::floating_point T>
+			constexpr T inverse_sqrt_three_refinements(T arg) noexcept
+			{
+				T current_value = T(1.0) / converging_sqrt(arg);
+
+				current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);					// first refinement
+				current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);					// second refinement
+
+				current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);					// third refinement
+				return current_value;
+			}
 		}
 
-		// unsure of the accuracy of this function, but it makes sqrt() more accurate.
 		template <std::floating_point T>
-		constexpr T inverse_sqrt(T arg) noexcept
+		constexpr T rsqrt(T arg) noexcept
 		{
-			T current_value = 1 / converging_sqrt(arg);
+			return detail::inverse_sqrt_two_refinements(arg);
+		}
 
-			current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);
-			current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);
-			current_value += T(0.5) * current_value * (T(1.0) - arg * current_value * current_value);
-
-			return current_value;
+		// float specialization - uses double internally -- increases exact fidelity with reciprocal of std::sqrt from 71% to 74%
+		template <>
+		constexpr float rsqrt(float value) noexcept
+		{
+			return static_cast<float>(rsqrt(static_cast<double>(value)));
 		}
 
 		//	This version with inverse_sqrt(), when used over all the 32-bit floats gives:
-		//		~76.5% same result as std::sqrt
-		//		~23.5% within 1 ulp
-		//	Some tests with double indicate ~90.33% same result as std::sqrt, ~9.66% off by 1 ulp
+		//
+		//	with 3 refinements:
+		//		all floats: 76.5% same result as std::sqrt, 23.5% apparently within 1 ulp
+		//		a double sample of (2^52, 2^52 + 2^31-1] 99.99923% exact match, 0.0007717% apparently within 1 ulp
+		//
 		template <std::floating_point T>
 		constexpr T sqrt(T arg) noexcept
 		{
-			return arg * inverse_sqrt(arg);
+			return arg * detail::inverse_sqrt_three_refinements(arg);
 		}
 
-		// float specialization - uses double internally -- should be 100% compliant with std::sqrt
+		// float specialization - uses double internally -- 100% compliant with std::sqrt
 		template <>
 		constexpr float sqrt(float value) noexcept
 		{
@@ -446,7 +482,7 @@ namespace cxcm
 			//
 
 			template <std::floating_point T>
-			constexpr T constexpr_inverse_sqrt(T value) noexcept
+			constexpr T constexpr_rsqrt(T value) noexcept
 			{
 				// screen out unnecessary input
 
@@ -466,7 +502,7 @@ namespace cxcm
 				if (value <= T(0.0))
 					return std::numeric_limits<T>::quiet_NaN();
 
-				return relaxed::inverse_sqrt(value);
+				return relaxed::rsqrt(value);
 			}
 
 		} // namespace detail
@@ -687,7 +723,7 @@ namespace cxcm
 		{
 			if (std::is_constant_evaluated())
 			{
-				return detail::constexpr_inverse_sqrt(value);
+				return detail::constexpr_rsqrt(value);
 			}
 			else
 			{
@@ -700,7 +736,7 @@ namespace cxcm
 		template <std::floating_point T>
 		constexpr T rsqrt(T value) noexcept
 		{
-			return detail::constexpr_inverse_sqrt(value);
+			return detail::constexpr_rsqrt(value);
 		}
 
 #endif
