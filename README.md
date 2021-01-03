@@ -4,7 +4,7 @@ cxcm is a c++20 library that provides ```constexpr``` versions of some of the fu
 
 ## Installation
 
-Currently this is a single header library. All you need to do is include [cxcm.hxx](https://raw.githubusercontent.com/davidbrowne/cxcm/main/cxcm.hxx) and the functions are in the ```cxcm``` namespace.
+Currently this is a single header library. All you need to do is include [cxcm.hxx](https://raw.githubusercontent.com/davidbrowne/cxcm/main/cxcm.hxx). The functions are in the ```cxcm``` namespace.
 
 ## Motivation
 
@@ -53,10 +53,17 @@ This project uses [doctest](https://github.com/onqtam/doctest) for testing, and 
 * gcc 9.2.0
 * clang 10.0
 
-All tests passed 100%. It could work on earlier versions, and it certainly should work on later versions.
+```
+===============================================================================
+[doctest] test cases:  24 |  24 passed | 0 failed | 0 skipped
+[doctest] assertions: 672 | 672 passed | 0 failed |
+[doctest] Status: SUCCESS!
+```
 
-There are no specific tests for ```sqrt``` and ```rsqrt```. They don't produce the same results for ```double``` and presumably ```long double```, as the constexpr versions are off by at most 1 ulp (it appears). For testing the entire range of ```float```, they both conform 100% with ```std::```. For  ```double```, depending on the range being tested, exact conformance has been between 80% and 100%, but it would take 100,000 years to test every ```double```.
+It might work on earlier versions, and it certainly should work on later versions.
+
+There are no specific tests for ```sqrt``` and ```rsqrt```. They don't produce the same results for ```double``` and presumably ```long double```, as the constexpr versions are off by at most 1 ulp (it appears). For testing the entire range of ```float```, they both conform 100% with ```std::```. For  ```double```, depending on the range being tested, exact conformance has been between 70% and 100%, but it would take 100,000 years to test every ```double```.
 
 ## License [![BSL](https://img.shields.io/badge/license-BSL-blue)](https://choosealicense.com/licenses/bsl-1.0/)
 
-This project uses the [Boost Software License 1.0](https://choosealicense.com/licenses/bsl-1.0/). It is not a part of Boost, this is just the best permissive license for my needs.
+This project uses the [Boost Software License 1.0](https://choosealicense.com/licenses/bsl-1.0/).
