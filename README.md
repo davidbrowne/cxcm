@@ -10,7 +10,7 @@ Currently this is a single header library. All you need to do is include [cxcm.h
 
 Originally I was working on a project dealing with periodic intervals, and I wanted to make the project as constexpr as I could. The most important functions for me from ```<cmath>``` were ```std::floor()``` and ```std::ceil()```. I looked for constexpr ```<cmath>``` projects, and discovered that none that I found matched my requirements.
 
-[GCEM](https://github.com/kthohr/gcem) from Keith O'Hara is very popular, but it doesn't try and stick to the standard for smaller numbers (subnormals). I needed more fidelity to the Standard Library, so I started creating my own small project.
+[GCEM](https://github.com/kthohr/gcem) is very popular, but it doesn't try and stick to the standard for smaller numbers (subnormals). I needed more fidelity to the Standard Library, so I started creating my own small project.
 
 ## Status
 
@@ -45,7 +45,8 @@ The point of this library is to provide ```constexpr``` versions of certain func
 * ```sqrt```
 * ```rsqrt```
 
-To get rid of runtime optimization and always use the constexpr version, then add the following before you include cxcm.hxx:
+To get rid of runtime optimization and always use the constexpr version, then define ```CXCM_DISABLE_RUNTIME_OPTIMIZATIONS``` before you include cxcm.hxx:
+
 ``` c++
 #define CXCM_DISABLE_RUNTIME_OPTIMIZATIONS
 #include "cxcm.hxx"
