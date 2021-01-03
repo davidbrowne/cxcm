@@ -18,7 +18,7 @@
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 2;
+constexpr inline int CXCM_PATCH_VERSION = 3;
 
 namespace cxcm
 {
