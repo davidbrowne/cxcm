@@ -45,6 +45,21 @@ The point of this library is to provide ```constexpr``` versions of certain func
 * ```sqrt```
 * ```rsqrt```
 
+To get rid of runtime optimization and always use the constexpr version, then add the following before you include cxcm.hxx:
+``` c++
+#define CXCM_DISABLE_RUNTIME_OPTIMIZATIONS
+#include "cxcm.hxx"
+
+// thanks to CXCM_DISABLE_RUNTIME_OPTIMIZATIONS, no runtime optimizations for cxcm library.
+// this will not call std::sqrt() as a runtime optimization.
+// this is clearly not a constexpr context.
+void length(double a, double b, double c)
+{
+	return cxcm::sqrt(a*a + b*b + c*c);
+}
+
+```
+
 ## Testing
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:

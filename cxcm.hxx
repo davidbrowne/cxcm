@@ -551,15 +551,11 @@ namespace cxcm
 		}
 
 
-// if this is defined, potentially use other functions for non constant evaluated contexts.
-// comment out this definition if we want just the one constexpr version.
-#define ALLOW_NON_CONST_EVAL_SPECIALIZATIONS
-
 		//
 		// trunc()
 		//
 
-#if defined(ALLOW_NON_CONST_EVAL_SPECIALIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		// rounds towards zero
 
@@ -592,7 +588,7 @@ namespace cxcm
 		// floor()
 		//
 
-#if defined(ALLOW_NON_CONST_EVAL_SPECIALIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		// rounds towards negative infinity
 
@@ -625,7 +621,7 @@ namespace cxcm
 		// ceil()
 		//
 
-#if defined(ALLOW_NON_CONST_EVAL_SPECIALIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		// rounds towards positive infinity
 
@@ -658,7 +654,7 @@ namespace cxcm
 		// round()
 		//
 
-#if defined(ALLOW_NON_CONST_EVAL_SPECIALIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		// rounds to nearest integral position, halfway cases away from zero
 
@@ -691,7 +687,7 @@ namespace cxcm
 		// sqrt()
 		//
 
-#if defined(ALLOW_NON_CONST_EVAL_SPECIALIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		template <std::floating_point T>
 		constexpr T sqrt(T value) noexcept
@@ -720,7 +716,7 @@ namespace cxcm
 		// rsqrt() - inverse square root
 		//
 
-#if defined(ALLOW_NON_CONST_EVAL_SPECIALIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		template <std::floating_point T>
 		constexpr T rsqrt(T value) noexcept
