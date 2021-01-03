@@ -53,7 +53,7 @@ To get rid of runtime optimization and always use the constexpr version, then ad
 // thanks to CXCM_DISABLE_RUNTIME_OPTIMIZATIONS, no runtime optimizations for cxcm library.
 // this will not call std::sqrt() as a runtime optimization.
 // this is clearly not a constexpr context.
-void length(double a, double b, double c)
+double length(double a, double b, double c)
 {
 	return cxcm::sqrt(a*a + b*b + c*c);
 }
