@@ -495,7 +495,7 @@ namespace cxcm
 					return value;
 
 				// arg == +infinity , return 0
-				if ((value == std::numeric_limits<T>::infinity()))
+				if (value == std::numeric_limits<T>::infinity())
 					return T(0.0);
 
 				// arg == -infinity or +/-0, return Nan
