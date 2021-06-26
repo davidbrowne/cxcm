@@ -14,23 +14,26 @@ Originally I was working on a project dealing with periodic intervals, and I wan
 
 ## Status
 
-Current version: `v0.1.3`
+Current version: `v0.1.6`
 
 Implemented:
 
-* ```abs```
-* ```fabs```
-* ```fpclassify```
-* ```isfinite```
-* ```isinf```
-* ```isnan```
-* ```isnormal```
-* ```trunc```
-* ```floor```
-* ```ceil```
-* ```round```
-* ```sqrt``` : great approximation but not all exact with ```std::``` - at most seems off by only 1 ulp
-* ```rsqrt``` : reciprocal sqrt - not part of ```<cmath>``` or the standard, but very helpful - same compatibility characteristics as ```sqrt```, but for ```1.0 / sqrt()```
+* ```abs()```
+* ```fabs()```
+* ```fpclassify()```
+* ```isfinite()```
+* ```isinf()```
+* ```isnan()```
+* ```isnormal()```
+* ```trunc()```
+* ```floor()```
+* ```ceil()```
+* ```round()```
+* ```sqrt()``` : great approximation but not all exact with ```std::``` - at most seems off by only 1 ulp
+* ```rsqrt()``` : reciprocal sqrt - not part of ```<cmath>``` or the standard, but very helpful - same compatibility characteristics as ```sqrt```, but for ```1.0 / sqrt()```
+* ```fmod()```
+* ```fract()```
+* ```round_even()```
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -38,28 +41,17 @@ Not sure yet how much more to try and make ```constexpr```. This library is mean
 
 The point of this library is to provide ```constexpr``` versions of certain functions. This is helpful for compile time programming, but we don't usually want to run the ```constexpr``` versions of the functions at runtime. If we discover that we are using these functions at runtime, we revert to the ```std::``` versions for:
 
-* ```trunc```
-* ```floor```
-* ```ceil```
-* ```round```
-* ```sqrt```
-* ```rsqrt```
+* ```trunc()```
+* ```floor()```
+* ```ceil()```
+* ```round()```
+* ```sqrt()```
+* ```rsqrt()```
+* ```fmod()```
 
-To get rid of runtime optimization and always use the constexpr version, then define ```CXCM_DISABLE_RUNTIME_OPTIMIZATIONS``` before you include cxcm.hxx:
+To get rid of runtime optimization and always use the constexpr version, then define the macro ```CXCM_DISABLE_RUNTIME_OPTIMIZATIONS``` before you include cxcm.hxx:
 
-``` c++
-#define CXCM_DISABLE_RUNTIME_OPTIMIZATIONS
-#include "cxcm.hxx"
-
-// thanks to CXCM_DISABLE_RUNTIME_OPTIMIZATIONS, no runtime optimizations for cxcm library.
-// this will not call std::sqrt() as a runtime optimization.
-// this is clearly not a constexpr context.
-double length(double a, double b, double c)
-{
-	return cxcm::sqrt(a*a + b*b + c*c);
-}
-
-```
+Since ```sqrt()``` and ```rsqrt()``` do not have identical results with std::sqrt(), if you want the approximate but constexpr version you have to opt-in by defining the macro ```CXCM_APPROXIMATIONS_ALLOWED```.
 
 ## Testing
 
@@ -78,7 +70,9 @@ This project uses [doctest](https://github.com/onqtam/doctest) for testing, and 
 
 It might work on earlier versions, and it certainly should work on later versions.
 
-There are no specific tests for ```sqrt``` and ```rsqrt```. They don't produce the same results for ```double``` and presumably ```long double```, as the constexpr versions are off by at most 1 ulp (it appears). For testing the entire range of ```float```, they both conform 100% with ```std::```. For  ```double```, depending on the range being tested, exact conformance has been between 70% and 100%, but it would take 100,000 years to test every ```double```.
+There are no specific tests for ```sqrt()``` and ```rsqrt()```. They don't produce the same results for ```double``` and presumably ```long double```, as the constexpr versions are off by at most 1 ulp (it appears). For testing the entire range of ```float```, they both conform 100% with ```std::```. For  ```double```, depending on the range being tested, exact conformance has been between 70% and 100%, but it would take 100,000 years to test every ```double```.
+
+We are also missing tests for ```fmod()```, ```fract()```, and ```round_even()```.
 
 ## License [![BSL](https://img.shields.io/badge/license-BSL-blue)](https://choosealicense.com/licenses/bsl-1.0/)
 
