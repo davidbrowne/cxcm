@@ -57,9 +57,9 @@ Since ```sqrt()``` and ```rsqrt()``` do not have identical results with std::sqr
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
-* MSVC 2019 - v16.8 or higher
-* gcc 9.2.0
-* clang 10.0
+* MSVC 2019 v16.10
+* gcc 10.3.0
+* clang 12.0
 
 ```
 ===============================================================================
