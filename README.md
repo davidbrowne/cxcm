@@ -14,7 +14,7 @@ Originally I was working on a project dealing with periodic intervals, and I wan
 
 ## Status
 
-Current version: `v0.1.6`
+Current version: `v0.1.7`
 
 Implemented:
 
