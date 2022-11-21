@@ -20,11 +20,10 @@
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 8;
+constexpr inline int CXCM_PATCH_VERSION = 9;
 
 namespace cxcm
 {
-
 	namespace limits
 	{
 		namespace detail
@@ -578,7 +577,7 @@ namespace cxcm
 				// screen out unnecessary input
 
 				// arg == +infinity or +/-0, return val unmodified
-				// arg == NaN, return Nan
+				// arg == NaN, return NaN
 				if (!isnormal_or_subnormal(value))
 					return value;
 
@@ -598,7 +597,7 @@ namespace cxcm
 			{
 				// screen out unnecessary input
 
-				// arg == NaN, return Nan
+				// arg == NaN, return NaN
 				if (isnan(value))
 					return value;
 
@@ -606,7 +605,7 @@ namespace cxcm
 				if (value == std::numeric_limits<T>::infinity())
 					return T(0.0);
 
-				// arg == -infinity or +/-0, return Nan
+				// arg == -infinity or +/-0, return NaN
 				if (!isnormal_or_subnormal(value))
 					return std::numeric_limits<T>::quiet_NaN();
 
@@ -654,8 +653,6 @@ namespace cxcm
 		// trunc()
 		//
 
-#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
-
 		// rounds towards zero
 
 		template <std::floating_point T>
@@ -671,23 +668,9 @@ namespace cxcm
 			}
 		}
 
-#else
-
-		// rounds towards zero
-
-		template <std::floating_point T>
-		constexpr T trunc(T value) noexcept
-		{
-			return detail::constexpr_trunc(value);
-		}
-
-#endif
-
 		//
 		// floor()
 		//
-
-#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		// rounds towards negative infinity
 
@@ -704,23 +687,9 @@ namespace cxcm
 			}
 		}
 
-#else
-
-		// rounds towards negative infinity
-
-		template <std::floating_point T>
-		constexpr T floor(T value) noexcept
-		{
-			return detail::constexpr_floor(value);
-		}
-
-#endif
-
 		//
 		// ceil()
 		//
-
-#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		// rounds towards positive infinity
 
@@ -737,23 +706,9 @@ namespace cxcm
 			}
 		}
 
-#else
-
-		// rounds towards positive infinity
-
-		template <std::floating_point T>
-		constexpr T ceil(T value) noexcept
-		{
-			return detail::constexpr_ceil(value);
-		}
-
-#endif
-
 		//
 		// round()
 		//
-
-#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
 
 		// rounds to nearest integral position, halfway cases away from zero
 
@@ -769,18 +724,6 @@ namespace cxcm
 				return std::round(value);
 			}
 		}
-
-#else
-
-		// rounds to nearest integral position, halfway cases away from zero
-
-		template <std::floating_point T>
-		constexpr T round(T value) noexcept
-		{
-			return detail::constexpr_round(value);
-		}
-
-#endif
 
 		//
 		// fract()
@@ -800,8 +743,6 @@ namespace cxcm
 		// fmod()
 		//
 
-#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
-
 		// the floating point remainder of division
 
 		template <std::floating_point T>
@@ -816,18 +757,6 @@ namespace cxcm
 				return std::fmod(x, y);
 			}
 		}
-
-#else
-
-		// the floating point remainder of division
-
-		template <std::floating_point T>
-		constexpr T fmod(T x, T y) noexcept
-		{
-			return detail::constexpr_fmod(x, y);
-		}
-
-#endif
 
 		//
 		// round_even()
@@ -847,9 +776,7 @@ namespace cxcm
 		// sqrt()
 		//
 
-#if CXCM_APPROXIMATIONS_ALLOWED
-
-	#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+#if defined(CXCM_CONSTEXPR_APPROXIMATIONS_ALLOWED)
 
 		template <std::floating_point T>
 		constexpr T sqrt(T value) noexcept
@@ -863,16 +790,6 @@ namespace cxcm
 				return std::sqrt(value);
 			}
 		}
-
-	#else
-
-		template <std::floating_point T>
-		constexpr T sqrt(T value) noexcept
-		{
-			return detail::constexpr_sqrt(value);
-		}
-
-	#endif
 
 #else
 
@@ -888,9 +805,7 @@ namespace cxcm
 		// rsqrt() - inverse square root
 		//
 
-#if CONSTEXPR_APPROXIMATIONS_ALLOWED
-
-	#if !defined(CXCM_DISABLE_RUNTIME_OPTIMIZATIONS) && (defined(_DEBUG) || defined(_M_IX86))
+#if defined(CXCM_CONSTEXPR_APPROXIMATIONS_ALLOWED)
 
 		template <std::floating_point T>
 		constexpr T rsqrt(T value) noexcept
@@ -904,16 +819,6 @@ namespace cxcm
 				return T(1.0) / std::sqrt(value);
 			}
 		}
-
-	#else
-
-		template <std::floating_point T>
-		constexpr T rsqrt(T value) noexcept
-		{
-			return detail::constexpr_rsqrt(value);
-		}
-
-	#endif
 
 #else
 
