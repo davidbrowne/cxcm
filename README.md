@@ -10,11 +10,11 @@ Currently this is a single header library. All you need to do is include [cxcm.h
 
 Originally I was working on a project dealing with periodic intervals, and I wanted to make the project as constexpr as I could. The most important functions for me from ```<cmath>``` were ```std::floor()``` and ```std::ceil()```. I looked for constexpr ```<cmath>``` projects, and discovered that none that I found matched my requirements.
 
-[GCEM](https://github.com/kthohr/gcem) is very popular, but it doesn't try and stick to the standard for smaller numbers (subnormals). I needed more fidelity to the Standard Library, so I started creating my own small project.
+[GCEM](https://github.com/kthohr/gcem) seems to be very popular, but at the time I started cxcm, GCEM wasn't conforming to the standard for smaller numbers (subnormals). I needed more fidelity to the Standard Library, so I started creating my own small project.
 
 ## Status
 
-Current version: `v0.1.7`
+Current version: `v0.1.9`
 
 Implemented:
 
@@ -57,7 +57,7 @@ Since ```sqrt()``` and ```rsqrt()``` do not have identical results with std::sqr
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
-* MSVC 2019 v16.10
+* MSVC 2022
 * gcc 10.3.0
 * clang 12.0
 
