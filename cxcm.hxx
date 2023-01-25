@@ -88,6 +88,7 @@ namespace cxcm
 			return (value < T(0)) ? -value : value;
 		}
 
+		// undefined behavior if (value == std::numeric_limits<T>::min())
 		template <std::signed_integral T>
 		constexpr T abs(T value) noexcept
 		{
