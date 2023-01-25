@@ -49,9 +49,7 @@ The point of this library is to provide ```constexpr``` versions of certain func
 * ```rsqrt()```
 * ```fmod()```
 
-To get rid of runtime optimization and always use the constexpr version, then define the macro ```CXCM_DISABLE_RUNTIME_OPTIMIZATIONS``` before you include cxcm.hxx:
-
-Since ```sqrt()``` and ```rsqrt()``` do not have identical results with std::sqrt(), if you want the approximate but constexpr version you have to opt-in by defining the macro ```CXCM_APPROXIMATIONS_ALLOWED```.
+Since ```cxcm::sqrt()``` and ```cxcm::rsqrt()``` do not have identical results with std::sqrt(), if you want the approximate but constexpr version you have to opt-in by defining the macro ```CXCM_APPROXIMATIONS_ALLOWED```.
 
 ## Testing
 
