@@ -13,7 +13,7 @@
 #include <cmath>
 #include <cassert>
 
-#if defined(DSGA_DISABLE_ASSERTS)
+#if defined(CXCM_DISABLE_ASSERTS)
 #define assertm(exp, msg) ((void)0)
 #else
 #define assertm(exp, msg) assert(((void)msg, exp))
