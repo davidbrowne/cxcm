@@ -11,6 +11,13 @@
 #include <type_traits>
 #include <concepts>
 #include <cmath>
+#include <cassert>
+
+#if defined(DSGA_DISABLE_ASSERTS)
+#define assertm(exp, msg) ((void)0)
+#else
+#define assertm(exp, msg) assert(((void)msg, exp))
+#endif
 
 //
 // ConstXpr CMath (cxcm)
@@ -20,7 +27,7 @@
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 9;
+constexpr inline int CXCM_PATCH_VERSION = 10;
 
 namespace cxcm
 {
@@ -640,6 +647,8 @@ namespace cxcm
 		template <std::integral T>
 		constexpr T abs(T value) noexcept
 		{
+			assertm(value != std::numeric_limits<T>::min(), "undefined behavior in abs()");
+
 			return relaxed::abs(value);
 		}
 
