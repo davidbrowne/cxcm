@@ -20,14 +20,14 @@
 #endif
 
 //
-// ConstXpr CMath (cxcm)
+// ConstXpr CMath -- cxcm
 //
 
 // version info
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 11;
+constexpr inline int CXCM_PATCH_VERSION = 12;
 
 namespace cxcm
 {
@@ -95,7 +95,7 @@ namespace cxcm
 			return (value < T(0)) ? -value : value;
 		}
 
-		// undefined behavior if (value == std::numeric_limits<T>::min())
+		// undefined behavior if value is std::numeric_limits<T>::min()
 		template <std::signed_integral T>
 		constexpr T abs(T value) noexcept
 		{
@@ -236,9 +236,8 @@ namespace cxcm
 			bool is_halfway = (fract(value) == T(0.5));
 
 			// the special case
-			if (is_halfway)
-				if (is_even)
-					return trunc_value;
+			if (is_halfway && is_even)
+				return trunc_value;
 
 			// zero could be handled either place, but here it is with the negative values.
 
@@ -303,8 +302,11 @@ namespace cxcm
 		constexpr float sqrt(float value) noexcept
 		{
 			double val = value;
-//			return static_cast<float>(val * detail::inverse_sqrt(val));
+#if 0
+			return static_cast<float>(val * detail::inverse_sqrt(val));
+#else
 			return static_cast<float>(detail::converging_sqrt(val));
+#endif
 		}
 
 		// reciprocal of square root
@@ -608,19 +610,19 @@ namespace cxcm
 			{
 				// screen out unnecessary input
 
-				// arg == NaN, return NaN
+				// if arg is NaN, return NaN
 				if (isnan(value))
 					return value;
 
-				// arg == +infinity , return 0
+				// if arg is +infinity , return 0
 				if (value == std::numeric_limits<T>::infinity())
 					return T(0.0);
 
-				// arg == -infinity or +/-0, return NaN
+				// if arg is -infinity or +/-0, return NaN
 				if (!isnormal_or_subnormal(value))
 					return std::numeric_limits<T>::quiet_NaN();
 
-				// arg <= 0, return NaN
+				// if arg <= 0, return NaN
 				if (value <= T(0.0))
 					return std::numeric_limits<T>::quiet_NaN();
 
