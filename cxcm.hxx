@@ -27,7 +27,7 @@
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 10;
+constexpr inline int CXCM_PATCH_VERSION = 11;
 
 namespace cxcm
 {
@@ -337,17 +337,20 @@ namespace cxcm
 	// microsoft is in the process of making this stuff constexpr, and they need to have a compiler
 	// intrinsic to do it. https://github.com/microsoft/STL/issues/65#issuecomment-563886838
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__clang__)
 #pragma float_control(precise, on, push)
 #endif
 
 	template <std::floating_point T>
+	#if defined(__GNUC__) && !defined(__clang__)
+		__attribute__((optimize("-fno-fast-math")))
+	#endif
 	constexpr bool isnan(T value) noexcept
 	{
 		return (value != value);
 	}
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__clang__)
 #pragma float_control(pop)
 #endif
 
