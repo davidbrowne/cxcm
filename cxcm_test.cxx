@@ -1003,6 +1003,67 @@ TEST_SUITE("constexpr_math for double")
 		CHECK(cxcm::round(13.75) == 14.0);
 	}
 
+	TEST_CASE("testing cxcm::round_even() double values")
+	{
+		// +/- 0
+		CHECK(cxcm::round_even(0.0) == 0.0);
+		CHECK(cxcm::round_even(-0.0) == -0.0);
+
+		// +/- infinity
+		CHECK(cxcm::round_even(std::numeric_limits<double>::infinity()) == std::numeric_limits<double>::infinity());
+		CHECK(cxcm::round_even(-std::numeric_limits<double>::infinity()) == -std::numeric_limits<double>::infinity());
+
+		// NaN
+		CHECK(cxcm::isnan(cxcm::round_even(std::numeric_limits<double>::quiet_NaN())));
+
+		// +/- machine epsilon, +/- denorm_min
+		CHECK(cxcm::round_even(std::numeric_limits<double>::denorm_min()) == 0.0);
+		CHECK(cxcm::round_even(-std::numeric_limits<double>::denorm_min()) == -0.0);
+		CHECK(cxcm::round_even(std::numeric_limits<double>::epsilon()) == 0.0);
+		CHECK(cxcm::round_even(-std::numeric_limits<double>::epsilon()) == -0.0);
+
+		// +/- min and max normal values
+		CHECK(cxcm::round_even(std::numeric_limits<double>::min()) == 0.0);
+		CHECK(cxcm::round_even(-std::numeric_limits<double>::min()) == -0.0);
+		CHECK(cxcm::round_even(std::numeric_limits<double>::max()) == std::numeric_limits<double>::max());
+		CHECK(cxcm::round_even(std::numeric_limits<double>::lowest()) == std::numeric_limits<double>::lowest());
+
+		// +/- largest fractional double
+		CHECK(cxcm::round_even(0x1.fffffffffffffp+51) == 0x1.0p+52);
+		CHECK(cxcm::round_even(-0x1.fffffffffffffp+51) == -0x1.0p+52);
+
+		// +/- value where distance between adjacent doubles is 1.0
+		CHECK(cxcm::round_even(0x1.0000000000001p+52) == 0x1.0000000000001p+52);
+		CHECK(cxcm::round_even(-0x1.0000000000001p+52) == -0x1.0000000000001p+52);
+
+		// double value that overflows a long long
+		CHECK(cxcm::round_even(0x1.0p+63) == 0x1.0p+63);
+
+		// other values near 0
+		CHECK(cxcm::round_even(0.25) == 0.0);
+		CHECK(cxcm::round_even(-0.25) == -0.0);
+		CHECK(cxcm::round_even(0.75) == 1.0);
+		CHECK(cxcm::round_even(-0.75) == -1.0);
+
+		// simple values with no fractional part
+		CHECK(cxcm::round_even(-4.0) == -4.0);
+		CHECK(cxcm::round_even(125.0) == 125.0);
+
+		// simple values with fractional parts
+		CHECK(cxcm::round_even(-1.825) == -2.0);
+		CHECK(cxcm::round_even(13.75) == 14.0);
+
+
+		// the round even specialty of this function
+		CHECK(cxcm::round_even(-3.5) == -4);
+		CHECK(cxcm::round_even(-2.5) == -2);
+		CHECK(cxcm::round_even(-1.5) == -2);
+		CHECK(cxcm::round_even(-0.5) == -0);
+		CHECK(cxcm::round_even(0.5) == 0);
+		CHECK(cxcm::round_even(1.5) == 2);
+		CHECK(cxcm::round_even(2.5) == 2);
+		CHECK(cxcm::round_even(3.5) == 4);
+	}
 }
 
 TEST_SUITE("constexpr_math for float")

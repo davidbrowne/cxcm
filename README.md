@@ -62,9 +62,11 @@ This project uses [doctest](https://github.com/onqtam/doctest) for testing, and 
 * clang 12.0
 
 ```
+[doctest] doctest version is "2.4.9"
+[doctest] run with "--help" for options
 ===============================================================================
-[doctest] test cases:  24 |  24 passed | 0 failed | 0 skipped
-[doctest] assertions: 672 | 672 passed | 0 failed |
+[doctest] test cases:  25 |  25 passed | 0 failed | 0 skipped
+[doctest] assertions: 706 | 706 passed | 0 failed |
 [doctest] Status: SUCCESS!
 ```
 

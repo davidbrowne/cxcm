@@ -333,11 +333,7 @@ namespace cxcm
 	// isnan()
 	//
 
-	// I've seen comments on the Microsoft/STL Github Issue that tracks where they are implementing
-	// std::isnan for c++20, and said that on some compilers with various compiler switches, what
-	// we are using here, (x != x) or !(x == x), can be optimized away, so this is not a good practice. So
-	// microsoft is in the process of making this stuff constexpr, and they need to have a compiler
-	// intrinsic to do it. https://github.com/microsoft/STL/issues/65#issuecomment-563886838
+	// make sure this isn't optimized away if used with fast-math
 
 #if defined(_MSC_VER) || defined(__clang__)
 #pragma float_control(precise, on, push)
