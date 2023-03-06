@@ -13,10 +13,31 @@
 #include <cmath>
 #include <cassert>
 
+//
+// cxcm_constexpr_assert() derived from https://gist.github.com/oliora/928424f7675d58fadf49c70fdba70d2f
+//
+
 #if defined(CXCM_DISABLE_ASSERTS)
-#define assertm(exp, msg) ((void)0)
+
+#define cxcm_assertm(exp, msg) ((void)0)
+#define cxcm_constexpr_assert(cond, msg) ((void)0)
+
 #else
-#define assertm(exp, msg) assert(((void)msg, exp))
+
+#define cxcm_assertm(exp, msg) assert(((void)msg, exp))
+
+// this needs to be NOT constexpr, so attempted use of this function stops constexpr evaluation
+template<class Assert>
+inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
+{
+	std::forward<Assert>(a)();
+}
+
+// When evaluated at compile time emits a compilation error if condition is not true.
+// Invokes the standard assert at run time.
+#define cxcm_constexpr_assert(cond, msg) \
+	((void)(!!(cond) ? 0 : (cxcm_constexpr_assert_failed([](){ assert(((void)msg, !#cond));}), 0)))
+
 #endif
 
 //
@@ -648,7 +669,7 @@ namespace cxcm
 		template <std::integral T>
 		constexpr T abs(T value) noexcept
 		{
-			assertm(value != std::numeric_limits<T>::min(), "undefined behavior in abs()");
+			cxcm_constexpr_assert(value != std::numeric_limits<T>::min(), "undefined behavior in abs()");
 
 			return relaxed::abs(value);
 		}
