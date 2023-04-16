@@ -16,7 +16,7 @@ Originally I was working on a project dealing with periodic intervals, and I wan
 
 ## Status
 
-Current version: `v0.1.13`
+Current version: `v0.1.14`
 
 Implemented:
 
@@ -51,18 +51,18 @@ The point of this library is to provide ```constexpr``` versions of certain func
 * ```rsqrt()```
 * ```fmod()```
 
-Since ```cxcm::sqrt()``` and ```cxcm::rsqrt()``` do not have identical results with std::sqrt(), if you want the approximate but constexpr version you have to opt-in by defining the macro ```CXCM_APPROXIMATIONS_ALLOWED```.
+Be aware that ```cxcm::sqrt()``` and ```cxcm::rsqrt()``` do not always have identical results with std::sqrt(), but they are the same more often than not. If there is a difference, it is at most 2 ulps away from the standard library version.
 
 ## Testing
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
-* MSVC 2022
+* MSVC 2022 - v17.5
 * gcc 10.3.0
 * clang 12.0
 
 ```
-[doctest] doctest version is "2.4.9"
+[doctest] doctest version is "2.4.11"
 [doctest] run with "--help" for options
 ===============================================================================
 [doctest] test cases:  25 |  25 passed | 0 failed | 0 skipped

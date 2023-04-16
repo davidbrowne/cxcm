@@ -48,7 +48,7 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 13;
+constexpr inline int CXCM_PATCH_VERSION = 14;
 
 namespace cxcm
 {
@@ -808,8 +808,6 @@ namespace cxcm
 		// sqrt()
 		//
 
-#if defined(CXCM_CONSTEXPR_APPROXIMATIONS_ALLOWED)
-
 		template <std::floating_point T>
 		constexpr T sqrt(T value) noexcept
 		{
@@ -823,21 +821,9 @@ namespace cxcm
 			}
 		}
 
-#else
-
-	template <std::floating_point T>
-	T sqrt(T value) noexcept
-	{
-		return std::sqrt(value);
-	}
-
-#endif
-
 		//
 		// rsqrt() - inverse square root
 		//
-
-#if defined(CXCM_CONSTEXPR_APPROXIMATIONS_ALLOWED)
 
 		template <std::floating_point T>
 		constexpr T rsqrt(T value) noexcept
@@ -851,16 +837,6 @@ namespace cxcm
 				return T(1.0) / std::sqrt(value);
 			}
 		}
-
-#else
-
-	template <std::floating_point T>
-	T rsqrt(T value) noexcept
-	{
-		return T(1.0) / std::sqrt(value);
-	}
-
-#endif
 
 	} // namespace strict
 
