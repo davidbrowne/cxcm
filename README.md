@@ -16,7 +16,7 @@ Originally I was working on a project dealing with periodic intervals, and I wan
 
 ## Status
 
-Current version: `v0.1.14`
+Current version: `v0.9.0`
 
 Implemented:
 
@@ -34,8 +34,8 @@ Implemented:
 * ```sqrt()``` : great approximation but not all exact with ```std::``` - at most seems off by only 1 ulp
 * ```rsqrt()``` : reciprocal sqrt - not part of ```<cmath>``` or the standard, but very helpful - same compatibility characteristics as ```sqrt```, but for ```1.0 / sqrt()```
 * ```fmod()```
-* ```fract()```
-* ```round_even()```
+* ```fract()``` : not part of ```<cmath>```
+* ```round_even()``` : not part of ```<cmath>```
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -43,10 +43,10 @@ Not sure yet how much more to try and make ```constexpr```. This library is mean
 
 The point of this library is to provide ```constexpr``` versions of certain functions. This is helpful for compile time programming, but we don't usually want to run the ```constexpr``` versions of the functions at runtime. If we discover that we are using these functions at runtime, we revert to the ```std::``` versions for:
 
-* ```trunc()```
-* ```floor()```
-* ```ceil()```
-* ```round()```
+* ```trunc(std::floating_point)```
+* ```floor(std::floating_point)```
+* ```ceil(std::floating_point)```
+* ```round(std::floating_point)```
 * ```sqrt()```
 * ```rsqrt()```
 * ```fmod()```
@@ -57,16 +57,16 @@ Be aware that ```cxcm::sqrt()``` and ```cxcm::rsqrt()``` do not always have iden
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
-* MSVC 2022 - v17.5
-* gcc 10.3.0
-* clang 12.0
+* MSVC 2022 - v17.7.2
+* gcc 13.1.0
+* clang 16.0.6
 
 ```
 [doctest] doctest version is "2.4.11"
 [doctest] run with "--help" for options
 ===============================================================================
-[doctest] test cases:  25 |  25 passed | 0 failed | 0 skipped
-[doctest] assertions: 706 | 706 passed | 0 failed |
+[doctest] test cases:  33 |  33 passed | 0 failed | 0 skipped
+[doctest] assertions: 746 | 746 passed | 0 failed |
 [doctest] Status: SUCCESS!
 ```
 

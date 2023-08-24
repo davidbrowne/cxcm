@@ -1510,3 +1510,78 @@ TEST_SUITE("constexpr_math for float")
 	}
 
 }
+
+TEST_SUITE("constexpr_math for integral")
+{
+	TEST_CASE("testing cxcm::abs() integral values")
+	{
+		CHECK(cxcm::abs(INT_MAX) == static_cast<double>(INT_MAX));
+		CHECK(cxcm::abs(1) == 1.0);
+		CHECK(cxcm::abs(0) == 0.0);
+		CHECK(cxcm::abs(-1) == 1.0);
+		CHECK(cxcm::abs(-INT_MAX) == static_cast<double>(INT_MAX));
+	}
+
+	TEST_CASE("testing cxcm::fabs() integral values")
+	{
+		CHECK(cxcm::fabs(INT_MAX) == static_cast<double>(INT_MAX));
+		CHECK(cxcm::fabs(1) == 1.0);
+		CHECK(cxcm::fabs(0) == 0.0);
+		CHECK(cxcm::fabs(-1) == 1.0);
+		CHECK(cxcm::fabs(-INT_MAX) == static_cast<double>(INT_MAX));
+	}
+
+	TEST_CASE("testing cxcm::floor() integral values")
+	{
+		CHECK(cxcm::floor(INT_MAX) == static_cast<double>(INT_MAX));
+		CHECK(cxcm::floor(1) == 1.0);
+		CHECK(cxcm::floor(0) == 0.0);
+		CHECK(cxcm::floor(-1) == -1.0);
+		CHECK(cxcm::floor(-INT_MAX) == static_cast<double>(-INT_MAX));
+	}
+
+	TEST_CASE("testing cxcm::ceil() integral values")
+	{
+		CHECK(cxcm::ceil(INT_MAX) == static_cast<double>(INT_MAX));
+		CHECK(cxcm::ceil(1) == 1.0);
+		CHECK(cxcm::ceil(0) == 0.0);
+		CHECK(cxcm::ceil(-1) == -1.0);
+		CHECK(cxcm::ceil(-INT_MAX) == static_cast<double>(-INT_MAX));
+	}
+
+	TEST_CASE("testing cxcm::trunc() integral values")
+	{
+		CHECK(cxcm::trunc(INT_MAX) == static_cast<double>(INT_MAX));
+		CHECK(cxcm::trunc(1) == 1.0);
+		CHECK(cxcm::trunc(0) == 0.0);
+		CHECK(cxcm::trunc(-1) == -1.0);
+		CHECK(cxcm::trunc(-INT_MAX) == static_cast<double>(-INT_MAX));
+	}
+
+	TEST_CASE("testing cxcm::fract() integral values")
+	{
+		CHECK(cxcm::fract(INT_MAX) == 0.0);
+		CHECK(cxcm::fract(1) == 0.0);
+		CHECK(cxcm::fract(0) == 0.0);
+		CHECK(cxcm::fract(-1) == 0.0);
+		CHECK(cxcm::fract(-INT_MAX) == 0.0);
+	}
+
+	TEST_CASE("testing cxcm::round() integral values")
+	{
+		CHECK(cxcm::round(INT_MAX) == static_cast<double>(INT_MAX));
+		CHECK(cxcm::round(1) == 1.0);
+		CHECK(cxcm::round(0) == 0.0);
+		CHECK(cxcm::round(-1) == -1.0);
+		CHECK(cxcm::round(-INT_MAX) == static_cast<double>(-INT_MAX));
+	}
+
+	TEST_CASE("testing cxcm::round_even() integral values")
+	{
+		CHECK(cxcm::round_even(INT_MAX) == static_cast<double>(INT_MAX));
+		CHECK(cxcm::round_even(1) == 1.0);
+		CHECK(cxcm::round_even(0) == 0.0);
+		CHECK(cxcm::round_even(-1) == -1.0);
+		CHECK(cxcm::round_even(-INT_MAX) == static_cast<double>(-INT_MAX));
+	}
+}

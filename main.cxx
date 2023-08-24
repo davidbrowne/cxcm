@@ -5,6 +5,7 @@
 //          https://www.boost.org/LICENSE_1_0.txt)
 
 #include <cstdlib>
+#include "cxcm.hxx"
 
 #define DOCTEST_CONFIG_IMPLEMENT
 
@@ -12,6 +13,13 @@
 
 int main(int argc, char *argv[])
 {
+	//
+	// fun stuff
+	//
+
+	[[ maybe_unused ]] auto a = cxcm::fabs(-3);
+
+
 	//
 	// doctest
 	//

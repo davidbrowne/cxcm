@@ -36,7 +36,7 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 // When evaluated at compile time emits a compilation error if condition is not true.
 // Invokes the standard assert at run time.
 #define cxcm_constexpr_assert(cond, msg) \
-	((void)(!!(cond) ? 0 : (cxcm_constexpr_assert_failed([](){ assert(((void)msg, !#cond));}), 0)))
+	((void)(!!(cond) ? 0 : (cxcm_constexpr_assert_failed([](){ assert(((void)msg, !static_cast<bool>(#cond)));}), 0)))
 
 #endif
 
@@ -47,8 +47,8 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 // version info
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
-constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 14;
+constexpr inline int CXCM_MINOR_VERSION = 9;
+constexpr inline int CXCM_PATCH_VERSION = 0;
 
 namespace cxcm
 {
@@ -118,19 +118,25 @@ namespace cxcm
 
 		// undefined behavior if value is std::numeric_limits<T>::min()
 		template <std::signed_integral T>
-		constexpr T abs(T value) noexcept
+		constexpr double abs(T value) noexcept
 		{
 			return (value < T(0)) ? -value : value;
 		}
 
 		template <std::unsigned_integral T>
-		constexpr T abs(T value) noexcept
+		constexpr double abs(T value) noexcept
 		{
 			return value;
 		}
 
 		template <std::floating_point T>
 		constexpr T fabs(T value) noexcept
+		{
+			return abs(value);
+		}
+
+		template <std::integral T>
+		constexpr double fabs(T value) noexcept
 		{
 			return abs(value);
 		}
@@ -667,7 +673,7 @@ namespace cxcm
 		// don't know what to do if someone tries to negate the most negative number.
 		// standard says behavior is undefined if you can't represent the result by return type.
 		template <std::integral T>
-		constexpr T abs(T value) noexcept
+		constexpr double abs(T value) noexcept
 		{
 			cxcm_constexpr_assert(value != std::numeric_limits<T>::min(), "undefined behavior in abs()");
 
@@ -677,9 +683,19 @@ namespace cxcm
 		template <std::floating_point T>
 		constexpr T fabs(T value) noexcept
 		{
-			return abs(value);
+			if (!detail::isnormal_or_subnormal(value))
+				return value;
+
+			return relaxed::fabs(value);
 		}
 
+		template <std::integral T>
+		constexpr double fabs(T value) noexcept
+		{
+			cxcm_constexpr_assert(value != std::numeric_limits<T>::min(), "undefined behavior in fabs()");
+
+			return relaxed::fabs(value);
+		}
 
 		//
 		// trunc()
@@ -698,6 +714,12 @@ namespace cxcm
 			{
 				return std::trunc(value);
 			}
+		}
+
+		template <std::integral T>
+		constexpr double trunc(T value) noexcept
+		{
+			return value;
 		}
 
 		//
@@ -719,6 +741,12 @@ namespace cxcm
 			}
 		}
 
+		template <std::integral T>
+		constexpr double floor(T value) noexcept
+		{
+			return value;
+		}
+
 		//
 		// ceil()
 		//
@@ -736,6 +764,12 @@ namespace cxcm
 			{
 				return std::ceil(value);
 			}
+		}
+
+		template <std::integral T>
+		constexpr double ceil(T value) noexcept
+		{
+			return value;
 		}
 
 		//
@@ -757,6 +791,12 @@ namespace cxcm
 			}
 		}
 
+		template <std::integral T>
+		constexpr double round(T value) noexcept
+		{
+			return value;
+		}
+
 		//
 		// fract()
 		//
@@ -769,6 +809,12 @@ namespace cxcm
 		constexpr T fract(T value) noexcept
 		{
 			return detail::constexpr_fract(value);
+		}
+
+		template <std::integral T>
+		constexpr double fract(T /* value */) noexcept
+		{
+			return 0.0;
 		}
 
 		//
@@ -802,6 +848,12 @@ namespace cxcm
 		constexpr T round_even(T value) noexcept
 		{
 			return detail::constexpr_round_even(value);
+		}
+
+		template <std::integral T>
+		constexpr double round_even(T value) noexcept
+		{
+			return value;
 		}
 
 		//
