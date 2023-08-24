@@ -5,6 +5,7 @@
 //          https://www.boost.org/LICENSE_1_0.txt)
 
 #include "cxcm.hxx"
+#include <climits>
 
 
 #if defined(__clang__)

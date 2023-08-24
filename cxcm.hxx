@@ -11,7 +11,6 @@
 #include <type_traits>
 #include <concepts>
 #include <cmath>
-#include <climits>
 #include <cassert>
 
 //
