@@ -15,7 +15,7 @@ Originally I was working on a project dealing with periodic intervals, and I wan
 [GCEM](https://github.com/kthohr/gcem) seems to be very popular, but at the time I started cxcm, GCEM wasn't conforming to the standard for smaller numbers (subnormals). I needed more fidelity to the Standard Library, so I started creating my own small project.
 
 ## Library cxcm
-[cxcm](https://github.com/davidbrowne/cxcm) is its own stand-alone project for extending ```<cmath>``` to have more functions be constexpr, all for ```c++20```. ```c++23``` and hopefully ```c++26``` extend the amount of functions in ```<cmath>``` to be constexpr, but this project aims to support ```c++20```.
+[cxcm](https://github.com/davidbrowne/cxcm) is its own stand-alone project for extending ```<cmath>``` to have more functions be constexpr, targeted for ```c++20```. ```c++23``` and hopefully ```c++26``` extend the amount of functions in ```<cmath>``` to be constexpr, but this project aims to support ```c++20```.
 
 There are a couple of functions where the constexpr versions are not direct replacements for the standard library versions. constexpr ```cxcm::sqrt()``` should be a 100% match to ```std::sqrt()``` when the type is ```float```, but when the type is ```double``` we get ~75.6% the same results, with the remaining results only 1 ulp away from the answer given by the standard library. Similarly, for the function constexpr ```cxcm::rsqrt()```, which is not in ```<cmath>``` but is the same as ```1 / sqrt()```, there is a 100% match for ```float``` and ```1.0f / std::sqrt(float_value)```. For ```double```, we get ~85.7% the same results as ```1.0 / std::sqrt(double_value)```, with the remaining results either within 1 ulp (~12.4%) or 2 ulps (~1.9%).
 
@@ -134,7 +134,7 @@ Returns ```1.0 / sqrt(value)```. Results are undefined if ```value <= 0```.
 
 ## Status
 
-Current version: `v0.9.0`
+Current version: `v0.9.1`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -156,7 +156,7 @@ Be aware that ```cxcm::sqrt()``` and ```cxcm::rsqrt()``` do not always have iden
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
-* MSVC 2022 - v17.7.2
+* MSVC 2022 - v17.7.4
 * gcc 13.1.0
 * clang 16.0.6
 
