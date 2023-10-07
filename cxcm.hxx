@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <concepts>
 #include <cmath>
+#include <bit>						// bit_cast
 #include <cassert>
 
 //
@@ -48,7 +49,7 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 
 constexpr inline int CXCM_MAJOR_VERSION = 0;
 constexpr inline int CXCM_MINOR_VERSION = 9;
-constexpr inline int CXCM_PATCH_VERSION = 1;
+constexpr inline int CXCM_PATCH_VERSION = 2;
 
 namespace cxcm
 {
@@ -428,6 +429,59 @@ namespace cxcm
 		return !isnan(value) && !isinf(value);
 	}
 
+	//
+	// signbit()
+	//
+
+	// +0 returns false and -0 returns true
+	template <std::floating_point T>
+	constexpr bool signbit(T value) noexcept
+	{
+		if constexpr (sizeof(T) == 4)
+		{
+			unsigned int bits = std::bit_cast<unsigned int>(value);
+			return (bits & 0x80000000) != 0;
+		}
+		else if constexpr (sizeof(T) == 8)
+		{
+			unsigned long long bits = std::bit_cast<unsigned long long>(value);
+			return (bits & 0x8000000000000000) != 0;
+		}
+	}
+
+	//
+	// copysign()
+	//
+
+	// +0 or -0 for sign is considered as *not* negative
+	template <std::floating_point T>
+	constexpr T copysign(T value, T sgn) noexcept
+	{
+		// +0 or -0 for sign is considered as *not* negative
+		bool is_neg = signbit(sgn);
+
+		if constexpr (sizeof(T) == 4)
+		{
+			unsigned int bits = std::bit_cast<unsigned int>(value);
+			if (is_neg)
+				bits |= 0x80000000;
+			else
+				bits &= 0x7FFFFFFF;
+
+			return std::bit_cast<T>(bits);
+		}
+		else if constexpr (sizeof(T) == 8)
+		{
+			unsigned long long bits = std::bit_cast<unsigned long long>(value);
+			if (is_neg)
+				bits |= 0x8000000000000000;
+			else
+				bits &= 0x7FFFFFFFFFFFFFFF;
+
+			return std::bit_cast<T>(bits);
+		}
+	}
+
 	// try and match standard library requirements.
 	// this namespace is pulled into parent namespace via inline.
 	inline namespace strict
@@ -612,14 +666,43 @@ namespace cxcm
 			{
 				// screen out unnecessary input
 
-				// arg == +infinity or +/-0, return val unmodified
-				// arg == NaN, return NaN
-				if (!isnormal_or_subnormal(value))
-					return value;
+				if (isnan(value))
+				{
+					if constexpr (sizeof(T) == 4)
+					{
+						unsigned int bits = std::bit_cast<unsigned int>(value);
 
-				// arg < 0, return NaN
-				if (value < T(0.0))
+						// set the is_quiet bit
+						bits |= 0x00400000;
+
+						return std::bit_cast<T>(bits);
+					}
+					else if constexpr (sizeof(T) == 8)
+					{
+						unsigned long long bits = std::bit_cast<unsigned long long>(value);
+
+						// set the is_quiet bit
+						bits |= 0x0008000000000000;
+
+						return std::bit_cast<T>(bits);
+					}
+				}
+				else if (value == std::numeric_limits<T>::infinity())
+				{
+					return value;
+				}
+				else if (value == -std::numeric_limits<T>::infinity())
+				{
 					return -std::numeric_limits<T>::quiet_NaN();
+				}
+				else if (value == T(0))
+				{
+					return value;
+				}
+				else if (value < T(0))
+				{
+					return -std::numeric_limits<T>::quiet_NaN();
+				}
 
 				return relaxed::sqrt(value);
 			}
@@ -633,21 +716,43 @@ namespace cxcm
 			{
 				// screen out unnecessary input
 
-				// if arg is NaN, return NaN
 				if (isnan(value))
-					return value;
+				{
+					if constexpr (sizeof(T) == 4)
+					{
+						unsigned int bits = std::bit_cast<unsigned int>(value);
 
-				// if arg is +infinity , return 0
-				if (value == std::numeric_limits<T>::infinity())
-					return T(0.0);
+						// set the is_quiet bit
+						bits |= 0x00400000;
 
-				// if arg is -infinity or +/-0, return NaN
-				if (!isnormal_or_subnormal(value))
-					return std::numeric_limits<T>::quiet_NaN();
+						return std::bit_cast<T>(bits);
+					}
+					else if constexpr (sizeof(T) == 8)
+					{
+						unsigned long long bits = std::bit_cast<unsigned long long>(value);
 
-				// if arg <= 0, return NaN
-				if (value <= T(0.0))
-					return std::numeric_limits<T>::quiet_NaN();
+						// set the is_quiet bit
+						bits |= 0x0008000000000000;
+
+						return std::bit_cast<T>(bits);
+					}
+				}
+				else if (value == std::numeric_limits<T>::infinity())
+				{
+					return T(0);
+				}
+				else if (value == -std::numeric_limits<T>::infinity())
+				{
+					return -std::numeric_limits<T>::quiet_NaN();
+				}
+				else if (value == T(0))
+				{
+					return std::numeric_limits<T>::infinity();
+				}
+				else if (value < T(0))
+				{
+					return -std::numeric_limits<T>::quiet_NaN();
+				}
 
 				return relaxed::rsqrt(value);
 			}

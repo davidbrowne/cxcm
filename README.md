@@ -48,6 +48,16 @@ constexpr bool isnormal(T value) noexcept;
 template <std::floating_point T>
 constexpr bool isfinite(T value) noexcept;
 ```
+* [```cxcm::signbit```](https://en.cppreference.com/w/cpp/numeric/math/signbit)
+```c++
+template <std::floating_point T>
+constexpr bool signbit(T value) noexcept;
+```
+* [```cxcm::copysign```](https://en.cppreference.com/w/cpp/numeric/math/copysign)
+```c++
+template <std::floating_point T>
+constexpr T copysign(T value, T sgn) noexcept;
+```
 * [```cxcm::abs```](https://en.cppreference.com/w/cpp/numeric/math/fabs) - see [here](https://en.cppreference.com/w/cpp/numeric/math/abs) for integral ```abs```
 ```c++
 template <std::floating_point T>
