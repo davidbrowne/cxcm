@@ -564,6 +564,75 @@ TEST_SUITE("constexpr_math for long double")
 TEST_SUITE("constexpr_math for double")
 {
 
+	TEST_CASE("testing fidelity of cxcm::signbit() with std::signbit() for double values")
+	{
+		auto pos_nan = std::numeric_limits<double>::quiet_NaN();
+		auto neg_nan = -std::numeric_limits<double>::quiet_NaN();
+		auto pos_inf = std::numeric_limits<double>::infinity();
+		auto neg_inf = -std::numeric_limits<double>::infinity();
+		double pos_zero = 0;
+		double neg_zero = std::copysign(0.0, -1.0);
+		double pos_four = 4;
+		double neg_four = -4;
+
+		// +/- 0
+		CHECK(cxcm::signbit(pos_zero) == std::signbit(pos_zero));
+		CHECK(cxcm::signbit(neg_zero) == std::signbit(neg_zero));
+
+		// +/- infinity
+		CHECK(cxcm::signbit(pos_inf) == std::signbit(pos_inf));
+		CHECK(cxcm::signbit(neg_inf) == std::signbit(neg_inf));
+
+		// NaN
+		CHECK(cxcm::signbit(pos_nan) == std::signbit(pos_nan));
+		CHECK(cxcm::signbit(neg_nan) == std::signbit(neg_nan));
+
+		// +/- 4
+		CHECK(cxcm::signbit(pos_four) == std::signbit(pos_four));
+		CHECK(cxcm::signbit(neg_four) == std::signbit(neg_four));
+	}
+
+	TEST_CASE("testing fidelity of cxcm::copysign() with std::copysign() for double values")
+	{
+		auto pos_nan = std::numeric_limits<double>::quiet_NaN();
+		auto neg_nan = -std::numeric_limits<double>::quiet_NaN();
+		auto pos_inf = std::numeric_limits<double>::infinity();
+		auto neg_inf = -std::numeric_limits<double>::infinity();
+		double pos_zero = 0;
+		double neg_zero = std::copysign(0.0, -1.0);
+		double pos_four = 4;
+		double neg_four = -4;
+
+		// +/- 0
+		CHECK(cxcm::copysign(pos_four, pos_zero) == std::copysign(pos_four, pos_zero));
+		CHECK(cxcm::copysign(neg_four, pos_zero) == std::copysign(neg_four, pos_zero));
+		CHECK(cxcm::copysign(pos_four, neg_zero) == std::copysign(pos_four, neg_zero));
+		CHECK(cxcm::copysign(neg_four, neg_zero) == std::copysign(neg_four, neg_zero));
+
+		// +/- infinity
+		CHECK(cxcm::copysign(pos_four, pos_inf) == std::copysign(pos_four, pos_inf));
+		CHECK(cxcm::copysign(neg_four, pos_inf) == std::copysign(neg_four, pos_inf));
+		CHECK(cxcm::copysign(pos_four, neg_inf) == std::copysign(pos_four, neg_inf));
+		CHECK(cxcm::copysign(neg_four, neg_inf) == std::copysign(neg_four, neg_inf));
+
+		CHECK(cxcm::copysign(pos_inf, pos_four) == std::copysign(pos_inf, pos_four));
+		CHECK(cxcm::copysign(pos_inf, neg_four) == std::copysign(pos_inf, neg_four));
+		CHECK(cxcm::copysign(neg_inf, pos_four) == std::copysign(neg_inf, pos_four));
+		CHECK(cxcm::copysign(neg_inf, neg_four) == std::copysign(neg_inf, neg_four));
+
+		// NaN
+		CHECK(cxcm::copysign(pos_four, pos_nan) == std::copysign(pos_four, pos_nan));
+		CHECK(cxcm::copysign(neg_four, pos_nan) == std::copysign(neg_four, pos_nan));
+		CHECK(cxcm::copysign(pos_four, neg_nan) == std::copysign(pos_four, neg_nan));
+		CHECK(cxcm::copysign(neg_four, neg_nan) == std::copysign(neg_four, neg_nan));
+
+		// +/- 4
+		CHECK(cxcm::copysign(pos_four, pos_four) == std::copysign(pos_four, pos_four));
+		CHECK(cxcm::copysign(neg_four, pos_four) == std::copysign(neg_four, pos_four));
+		CHECK(cxcm::copysign(pos_four, neg_four) == std::copysign(pos_four, neg_four));
+		CHECK(cxcm::copysign(neg_four, neg_four) == std::copysign(neg_four, neg_four));
+	}
+
 	TEST_CASE("testing fidelity of cxcm::trunc() with std::trunc() with double values")
 	{
 		// +/- 0
@@ -1069,6 +1138,75 @@ TEST_SUITE("constexpr_math for double")
 
 TEST_SUITE("constexpr_math for float")
 {
+
+	TEST_CASE("testing fidelity of cxcm::signbit() with std::signbit() for float values")
+	{
+		auto pos_nan = std::numeric_limits<float>::quiet_NaN();
+		auto neg_nan = -std::numeric_limits<float>::quiet_NaN();
+		auto pos_inf = std::numeric_limits<float>::infinity();
+		auto neg_inf = -std::numeric_limits<float>::infinity();
+		float pos_zero = 0;
+		float neg_zero = std::copysign(0.0f, -1.0f);
+		float pos_four = 4;
+		float neg_four = -4;
+
+		// +/- 0
+		CHECK(cxcm::signbit(pos_zero) == std::signbit(pos_zero));
+		CHECK(cxcm::signbit(neg_zero) == std::signbit(neg_zero));
+
+		// +/- infinity
+		CHECK(cxcm::signbit(pos_inf) == std::signbit(pos_inf));
+		CHECK(cxcm::signbit(neg_inf) == std::signbit(neg_inf));
+
+		// NaN
+		CHECK(cxcm::signbit(pos_nan) == std::signbit(pos_nan));
+		CHECK(cxcm::signbit(neg_nan) == std::signbit(neg_nan));
+
+		// +/- 4
+		CHECK(cxcm::signbit(pos_four) == std::signbit(pos_four));
+		CHECK(cxcm::signbit(neg_four) == std::signbit(neg_four));
+	}
+
+	TEST_CASE("testing fidelity of cxcm::copysign() with std::copysign() for float values")
+	{
+		auto pos_nan = std::numeric_limits<float>::quiet_NaN();
+		auto neg_nan = -std::numeric_limits<float>::quiet_NaN();
+		auto pos_inf = std::numeric_limits<float>::infinity();
+		auto neg_inf = -std::numeric_limits<float>::infinity();
+		float pos_zero = 0;
+		float neg_zero = std::copysign(0.0f, -1.0f);
+		float pos_four = 4;
+		float neg_four = -4;
+
+		// +/- 0
+		CHECK(cxcm::copysign(pos_four, pos_zero) == std::copysign(pos_four, pos_zero));
+		CHECK(cxcm::copysign(neg_four, pos_zero) == std::copysign(neg_four, pos_zero));
+		CHECK(cxcm::copysign(pos_four, neg_zero) == std::copysign(pos_four, neg_zero));
+		CHECK(cxcm::copysign(neg_four, neg_zero) == std::copysign(neg_four, neg_zero));
+
+		// +/- infinity
+		CHECK(cxcm::copysign(pos_four, pos_inf) == std::copysign(pos_four, pos_inf));
+		CHECK(cxcm::copysign(neg_four, pos_inf) == std::copysign(neg_four, pos_inf));
+		CHECK(cxcm::copysign(pos_four, neg_inf) == std::copysign(pos_four, neg_inf));
+		CHECK(cxcm::copysign(neg_four, neg_inf) == std::copysign(neg_four, neg_inf));
+
+		CHECK(cxcm::copysign(pos_inf, pos_four) == std::copysign(pos_inf, pos_four));
+		CHECK(cxcm::copysign(pos_inf, neg_four) == std::copysign(pos_inf, neg_four));
+		CHECK(cxcm::copysign(neg_inf, pos_four) == std::copysign(neg_inf, pos_four));
+		CHECK(cxcm::copysign(neg_inf, neg_four) == std::copysign(neg_inf, neg_four));
+
+		// NaN
+		CHECK(cxcm::copysign(pos_four, pos_nan) == std::copysign(pos_four, pos_nan));
+		CHECK(cxcm::copysign(neg_four, pos_nan) == std::copysign(neg_four, pos_nan));
+		CHECK(cxcm::copysign(pos_four, neg_nan) == std::copysign(pos_four, neg_nan));
+		CHECK(cxcm::copysign(neg_four, neg_nan) == std::copysign(neg_four, neg_nan));
+
+		// +/- 4
+		CHECK(cxcm::copysign(pos_four, pos_four) == std::copysign(pos_four, pos_four));
+		CHECK(cxcm::copysign(neg_four, pos_four) == std::copysign(neg_four, pos_four));
+		CHECK(cxcm::copysign(pos_four, neg_four) == std::copysign(pos_four, neg_four));
+		CHECK(cxcm::copysign(neg_four, neg_four) == std::copysign(neg_four, neg_four));
+	}
 
 	TEST_CASE("testing fidelity of cxcm::trunc() with std::trunc() with float values")
 	{

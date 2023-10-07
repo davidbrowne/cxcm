@@ -144,7 +144,7 @@ Returns ```1.0 / sqrt(value)```. Results are undefined if ```value <= 0```.
 
 ## Status
 
-Current version: `v0.9.1`
+Current version: `v0.9.2`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -174,8 +174,8 @@ This project uses [doctest](https://github.com/onqtam/doctest) for testing, and 
 [doctest] doctest version is "2.4.11"
 [doctest] run with "--help" for options
 ===============================================================================
-[doctest] test cases:  33 |  33 passed | 0 failed | 0 skipped
-[doctest] assertions: 746 | 746 passed | 0 failed |
+[doctest] test cases:  37 |  37 passed | 0 failed | 0 skipped
+[doctest] assertions: 802 | 802 passed | 0 failed |
 [doctest] Status: SUCCESS!
 ```
 
