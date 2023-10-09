@@ -177,7 +177,7 @@ This project uses [doctest](https://github.com/onqtam/doctest) for testing, and 
 
 It might work on earlier versions, and it certainly should work on later versions.
 
-There are no specific tests for ```sqrt()``` and ```rsqrt()```. They don't produce the same results for ```double``` and presumably ```long double```, as the constexpr versions are off by at most 1 ulp (it appears). For testing the entire range of ```float```, they both conform 100% with ```std::```. For  ```double```, depending on the range being tested, exact conformance has been between 70% and 100%, but it would take 100,000 years to test every ```double```.
+There are no specific tests for ```sqrt()``` and ```rsqrt()```, but they have been thoroughly tested. They are in 100% agreement with ```std::sqrt(float)```. They also appear to be in 100% agreement with ```std::sqrt(double)```, but it is infeasible to test the entire ```double``` range; however, there have been billions of comparisons run and they have all been in agreement.
 
 We are also missing tests for ```fmod()```, ```fract()```, and ```round_even()```.
 
