@@ -17,8 +17,6 @@ Originally I was working on a project dealing with periodic intervals, and I wan
 ## Library cxcm
 [cxcm](https://github.com/davidbrowne/cxcm) is its own stand-alone project for extending ```<cmath>``` to have more functions be constexpr, targeted for ```c++20```. ```c++23``` and hopefully ```c++26``` extend the amount of functions in ```<cmath>``` to be constexpr, but this project aims to support ```c++20```.
 
-There are a couple of functions where the constexpr versions are not direct replacements for the standard library versions. constexpr ```cxcm::sqrt()``` should be a 100% match to ```std::sqrt()``` when the type is ```float```, but when the type is ```double``` we get ~75.6% the same results, with the remaining results only 1 ulp away from the answer given by the standard library. Similarly, for the function constexpr ```cxcm::rsqrt()```, which is not in ```<cmath>``` but is the same as ```1 / sqrt()```, there is a 100% match for ```float``` and ```1.0f / std::sqrt(float_value)```. For ```double```, we get ~85.7% the same results as ```1.0 / std::sqrt(double_value)```, with the remaining results either within 1 ulp (~12.4%) or 2 ulps (~1.9%).
-
 ## cxcm Free Functions
 
 Most of these constexpr functions have counterparts in [```<cmath>```](https://en.cppreference.com/w/cpp/header/cmath). Many of these functions became constexpr in ```c++23``` or ```c++26```; however, this is a ```c++20``` library, so we are stuck with doing it ourselves if we want it.
@@ -144,7 +142,7 @@ Returns ```1.0 / sqrt(value)```. Results are undefined if ```value <= 0```.
 
 ## Status
 
-Current version: `v0.9.2`
+Current version: `v1.0.0`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
