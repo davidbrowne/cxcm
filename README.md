@@ -158,8 +158,6 @@ The point of this library is to provide ```constexpr``` versions of certain func
 * ```rsqrt()```
 * ```fmod()```
 
-Be aware that ```cxcm::sqrt()``` and ```cxcm::rsqrt()``` do not always have identical results with ```std::sqrt()```, but they are the same more often than not. If there is a difference, it is at most 2 ulps away from the standard library version.
-
 ## Testing
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
