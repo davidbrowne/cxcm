@@ -133,16 +133,25 @@ Returns ```value - floor(value)```. The positive fractional part of a floating-p
 template <std::floating_point T>
 constexpr T sqrt(T value) noexcept;
 ```
-* ```cxcm::rsqrt``` -  reciprocal square root - has efficient runtime use - not in ```<cmath>```
+* ```cxcm::rsqrt``` -  reciprocal square root - not in ```<cmath>```
 ```c++
 template <std::floating_point T>
 constexpr T rsqrt(T value) noexcept;
 ```
-Returns ```1.0 / sqrt(value)```. Results are undefined if ```value <= 0```.
+Returns Newton-Raphson version of ```1.0 / sqrt(value)```.
+* ```cxcm::fast_rsqrt``` - fast reciprocal square root - not in ```<cmath>```
+```c++
+template <std::floating_point T>
+constexpr T fast_rsqrt(T value) noexcept;
+```
+ This is a fast approximation to ```cxcm::rsqrt()```, but it may or may not be faster. For all floats, ```fast_rsqrt(float)``` is the same as ```rsqrt(float)```. When comparing with ```rsqrt(double)```, ```fast_rsqrt(double)``` gives pretty good approximate results:
+  * 0 ulps: ~68.58%
+  * 1 ulps: ~31.00%
+  * 2 ulps:  ~0.42%
 
 ## Status
 
-Current version: `v1.0.0`
+Current version: `v1.1.0`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -155,7 +164,6 @@ The point of this library is to provide ```constexpr``` versions of certain func
 * ```ceil(std::floating_point)```
 * ```round(std::floating_point)```
 * ```sqrt()```
-* ```rsqrt()```
 * ```fmod()```
 
 ## Testing
@@ -170,8 +178,8 @@ This project uses [doctest](https://github.com/onqtam/doctest) for testing, and 
 [doctest] doctest version is "2.4.11"
 [doctest] run with "--help" for options
 ===============================================================================
-[doctest] test cases:  37 |  37 passed | 0 failed | 0 skipped
-[doctest] assertions: 802 | 802 passed | 0 failed |
+[doctest] test cases:  39 |  39 passed | 0 failed | 0 skipped
+[doctest] assertions: 811 | 811 passed | 0 failed |
 [doctest] Status: SUCCESS!
 ```
 

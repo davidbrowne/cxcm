@@ -5,6 +5,7 @@
 //          https://www.boost.org/LICENSE_1_0.txt)
 
 #include "cxcm.hxx"
+#include <numbers>
 #include <climits>
 
 
@@ -1134,6 +1135,16 @@ TEST_SUITE("constexpr_math for double")
 		CHECK(cxcm::round_even(2.5) == 2);
 		CHECK(cxcm::round_even(3.5) == 4);
 	}
+
+	TEST_CASE("constexpr sqrt() and rsqrt() for double")
+	{
+		CHECK_EQ(std::numbers::sqrt2_v<double>, cxcm::sqrt(2.0));
+		CHECK_EQ(std::numbers::sqrt3_v<double>, cxcm::sqrt(3.0));
+		CHECK_EQ(std::numbers::phi_v<double>, (1.0 + cxcm::sqrt(5.0)) / 2.0);
+
+		CHECK_EQ(std::numbers::inv_sqrt3_v<double>, cxcm::rsqrt(3.0));
+		CHECK_EQ(std::numbers::inv_sqrtpi_v<double>, cxcm::rsqrt(std::numbers::pi_v<double>));
+	}
 }
 
 TEST_SUITE("constexpr_math for float")
@@ -1648,6 +1659,17 @@ TEST_SUITE("constexpr_math for float")
 		CHECK(cxcm::round(13.75f) == 14.0f);
 	}
 
+	TEST_CASE("constexpr sqrt() and rsqrt() for float")
+	{
+		CHECK_EQ(std::numbers::sqrt2_v<float>, cxcm::sqrt(2.0f));
+		CHECK_EQ(std::numbers::sqrt3_v<float>, cxcm::sqrt(3.0f));
+		CHECK_EQ(std::numbers::phi_v<float>, (1.0f + cxcm::sqrt(5.0f)) / 2.0f);
+
+		CHECK_EQ(std::numbers::inv_sqrt3_v<float>, cxcm::rsqrt(3.0f));
+
+		// off by 1 ulp
+//		CHECK_EQ(std::numbers::inv_sqrtpi_v<float>, cxcm::rsqrt(std::numbers::pi_v<float>));
+	}
 }
 
 TEST_SUITE("constexpr_math for integral")
