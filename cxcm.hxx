@@ -51,7 +51,7 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 
 constexpr inline int CXCM_MAJOR_VERSION = 1;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 0;
+constexpr inline int CXCM_PATCH_VERSION = 1;
 
 namespace cxcm
 {
@@ -60,7 +60,7 @@ namespace cxcm
 		// https://www.davidhbailey.com/dhbsoftware/ - QD
 
 		/*
-			Modfied BSD 3-Clause License
+			Modified BSD 3-Clause License
 
 			This work was supported by the Director, Office of Science, Division
 			of Mathematical, Information, and Computational Sciences of the
@@ -91,6 +91,10 @@ namespace cxcm
 			   license: a non-exclusive, royalty-free perpetual license to install, use, modify, prepare derivative works, incorporate into other computer
 			   software, distribute, and sublicense such enhancements or derivative works thereof, in binary and source code form.
 		*/
+
+		//
+		// heavily modified dd_real type and support
+		//
 
 		// The following code computes s = fl(a+b) and error(a + b), assuming |a| >= |b|.
 		constexpr double quick_two_sum(double a, double b, double &error) noexcept
@@ -286,8 +290,6 @@ namespace cxcm
 			double p1, p2;
 			p1 = two_prod(a.x[0], b.x[0], p2);
 			p2 += (a.x[0] * b.x[1] + a.x[1] * b.x[0]);
-//			p2 += b.x[1] * a.x[0];
-//			p2 += b.x[0] * a.x[1];
 			a.x[0] = quick_two_sum(p1, p2, a.x[1]);
 			return a;
 		}
@@ -416,13 +418,13 @@ namespace cxcm
 
 		// undefined behavior if value is std::numeric_limits<T>::min()
 		template <std::signed_integral T>
-		constexpr double abs(T value) noexcept
+		constexpr T abs(T value) noexcept
 		{
 			return (value < T(0)) ? -value : value;
 		}
 
 		template <std::unsigned_integral T>
-		constexpr double abs(T value) noexcept
+		constexpr T abs(T value) noexcept
 		{
 			return value;
 		}
@@ -1162,7 +1164,7 @@ namespace cxcm
 		// don't know what to do if someone tries to negate the most negative number.
 		// standard says behavior is undefined if you can't represent the result by return type.
 		template <std::integral T>
-		constexpr double abs(T value) noexcept
+		constexpr T abs(T value) noexcept
 		{
 			cxcm_constexpr_assert(value != std::numeric_limits<T>::min(), "undefined behavior in abs()");
 
