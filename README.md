@@ -170,7 +170,7 @@ The point of this library is to provide ```constexpr``` versions of certain func
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
-* MSVC 2022 - v17.8.3
+* MSVC 2022 - v17.9.1
 * gcc 13.1.0
 * clang 16.0.6
 
