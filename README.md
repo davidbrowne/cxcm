@@ -128,6 +128,18 @@ template <std::integral T>
 constexpr double fract(T /* value */) noexcept;
 ```
 Returns ```value - floor(value)```. The positive fractional part of a floating-point number. This is a number in the range [0.0, 1.0).
+* ```cxcm::is_negative_zero``` - not in ```<cmath>```
+```c++
+template <std::floating_point T>
+constexpr bool is_negative_zero(T val) noexcept;
+```
+Negative zero compares as if were positive zero, but this function is for those times when we explicitly want to know if a floating-point number is negative zero.
+* ```cxcm::negative_zero``` - variable template, not in ```<cmath>```
+```c++
+template <std::floating_point T>
+constexpr inline T negative_zero = T(-0);
+```
+There are specializations for double and float for this template variable. It returns the floating-point representation of negative zero.
 * [```cxcm::sqrt```](https://en.cppreference.com/w/cpp/numeric/math/sqrt) -  has efficient runtime use
 ```c++
 template <std::floating_point T>
@@ -151,7 +163,7 @@ constexpr T fast_rsqrt(T value) noexcept;
 
 ## Status
 
-Current version: `v1.1.1`
+Current version: `v1.1.2`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -170,7 +182,8 @@ The point of this library is to provide ```constexpr``` versions of certain func
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
-* MSVC 2022 - v17.9.1
+* MSVC 2019 - v16.9
+* MSVC 2022 - v17.9.2
 * gcc 13.1.0
 * clang 16.0.6
 
@@ -178,8 +191,8 @@ This project uses [doctest](https://github.com/onqtam/doctest) for testing, and 
 [doctest] doctest version is "2.4.11"
 [doctest] run with "--help" for options
 ===============================================================================
-[doctest] test cases:  39 |  39 passed | 0 failed | 0 skipped
-[doctest] assertions: 811 | 811 passed | 0 failed |
+[doctest] test cases:  40 |  40 passed | 0 failed | 0 skipped
+[doctest] assertions: 815 | 815 passed | 0 failed |
 [doctest] Status: SUCCESS!
 ```
 

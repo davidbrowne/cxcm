@@ -1,5 +1,5 @@
 
-//          Copyright David Browne 2020-2022.
+//          Copyright David Browne 2020-2024.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          https://www.boost.org/LICENSE_1_0.txt)
@@ -18,6 +18,14 @@
 
 TEST_SUITE("constexpr_math for long double")
 {
+	TEST_CASE("floating-point negative zero")
+	{
+		CHECK(cxcm::is_negative_zero(cxcm::negative_zero<double>));
+		CHECK(cxcm::is_negative_zero(cxcm::negative_zero<float>));
+		CHECK_UNARY_FALSE(cxcm::is_negative_zero(0.0));
+		CHECK_UNARY_FALSE(cxcm::is_negative_zero(0.0f));
+	}
+
 	constexpr bool extended_precision_long_double = std::numeric_limits<long double>::digits == 64;
 
 	TEST_CASE("testing fidelity of cxcm::trunc() with std::trunc() with long double values")

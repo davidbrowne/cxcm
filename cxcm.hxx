@@ -51,7 +51,7 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 
 constexpr inline int CXCM_MAJOR_VERSION = 1;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 1;
+constexpr inline int CXCM_PATCH_VERSION = 2;
 
 namespace cxcm
 {
@@ -397,6 +397,34 @@ namespace cxcm
 		template <>
 		constexpr inline float largest_fractional_value<float> = 0x1.fffffep+22f;
 	}
+
+	//
+	// floating-point negative zero support
+	//
+
+	template <std::floating_point T>
+	constexpr bool is_negative_zero(T val) noexcept;
+
+	template<>
+	constexpr bool is_negative_zero<float>(float val) noexcept
+	{
+		return (0x80000000 == std::bit_cast<unsigned int>(val));
+	}
+
+	template<>
+	constexpr bool is_negative_zero<double>(double val) noexcept
+	{
+		return (0x8000000000000000 == std::bit_cast<unsigned long long>(val));
+	}
+
+	template <std::floating_point T>
+	constexpr inline T negative_zero = T(-0);
+
+	template <>
+	constexpr inline float negative_zero<float> = std::bit_cast<float>(0x80000000);
+
+	template <>
+	constexpr inline double negative_zero<double> = std::bit_cast<double>(0x8000000000000000);
 
 	// don't worry about esoteric input.
 	// much faster than strict or standard when non constant evaluated,
