@@ -51,7 +51,7 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 
 constexpr inline int CXCM_MAJOR_VERSION = 1;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 2;
+constexpr inline int CXCM_PATCH_VERSION = 3;
 
 namespace cxcm
 {
@@ -752,11 +752,24 @@ namespace cxcm
 	// isinf()
 	//
 
+	// make sure this isn't optimized away if used with fast-math
+
+#if defined(_MSC_VER) || defined(__clang__)
+#pragma float_control(precise, on, push)
+#endif
+
 	template <std::floating_point T>
+	#if defined(__GNUC__) && !defined(__clang__)
+		__attribute__((optimize("-fno-fast-math")))
+	#endif
 	constexpr bool isinf(T value) noexcept
 	{
 		return (value == -std::numeric_limits<T>::infinity()) || (value == std::numeric_limits<T>::infinity());
 	}
+
+#if defined(_MSC_VER) || defined(__clang__)
+#pragma float_control(pop)
+#endif
 
 	//
 	// fpclassify()
@@ -1029,7 +1042,16 @@ namespace cxcm
 			// constexpr_sqrt()
 			//
 
+			// make sure this isn't optimized away if used with fast-math
+
+#if defined(_MSC_VER) || defined(__clang__)
+#pragma float_control(precise, on, push)
+#endif
+
 			template <std::floating_point T>
+			#if defined(__GNUC__) && !defined(__clang__)
+				__attribute__((optimize("-fno-fast-math")))
+			#endif
 			constexpr T constexpr_sqrt(T value) noexcept
 			{
 				// screen out unnecessary input
@@ -1075,11 +1097,24 @@ namespace cxcm
 				return relaxed::sqrt(value);
 			}
 
+#if defined(_MSC_VER) || defined(__clang__)
+#pragma float_control(pop)
+#endif
+
 			//
 			// constexpr_inverse_sqrt()
 			//
 
+			// make sure this isn't optimized away if used with fast-math
+
+#if defined(_MSC_VER) || defined(__clang__)
+#pragma float_control(precise, on, push)
+#endif
+
 			template <std::floating_point T>
+			#if defined(__GNUC__) && !defined(__clang__)
+				__attribute__((optimize("-fno-fast-math")))
+			#endif
 			constexpr T constexpr_rsqrt(T value) noexcept
 			{
 				// screen out unnecessary input
@@ -1125,51 +1160,68 @@ namespace cxcm
 				return relaxed::rsqrt(value);
 			}
 
-				template <std::floating_point T>
-				constexpr T constexpr_fast_rsqrt(T value) noexcept
+#if defined(_MSC_VER) || defined(__clang__)
+#pragma float_control(pop)
+#endif
+
+			// make sure this isn't optimized away if used with fast-math
+
+#if defined(_MSC_VER) || defined(__clang__)
+#pragma float_control(precise, on, push)
+#endif
+
+			template <std::floating_point T>
+			#if defined(__GNUC__) && !defined(__clang__)
+				__attribute__((optimize("-fno-fast-math")))
+			#endif
+			constexpr T constexpr_fast_rsqrt(T value) noexcept
+			{
+				// screen out unnecessary input
+
+				if (isnan(value))
 				{
-					// screen out unnecessary input
-
-					if (isnan(value))
+					if constexpr (sizeof(T) == 4)
 					{
-						if constexpr (sizeof(T) == 4)
-						{
-							unsigned int bits = std::bit_cast<unsigned int>(value);
+						unsigned int bits = std::bit_cast<unsigned int>(value);
 
-							// set the is_quiet bit
-							bits |= 0x00400000;
+						// set the is_quiet bit
+						bits |= 0x00400000;
 
-							return std::bit_cast<T>(bits);
-						}
-						else if constexpr (sizeof(T) == 8)
-						{
-							unsigned long long bits = std::bit_cast<unsigned long long>(value);
-
-							// set the is_quiet bit
-							bits |= 0x0008000000000000;
-
-							return std::bit_cast<T>(bits);
-						}
+						return std::bit_cast<T>(bits);
 					}
-					else if (value == std::numeric_limits<T>::infinity())
+					else if constexpr (sizeof(T) == 8)
 					{
-						return T(0);
-					}
-					else if (value == -std::numeric_limits<T>::infinity())
-					{
-						return -std::numeric_limits<T>::quiet_NaN();
-					}
-					else if (value == T(0))
-					{
-						return std::numeric_limits<T>::infinity();
-					}
-					else if (value < T(0))
-					{
-						return -std::numeric_limits<T>::quiet_NaN();
-					}
+						unsigned long long bits = std::bit_cast<unsigned long long>(value);
 
-					return relaxed::fast_rsqrt(value);
+						// set the is_quiet bit
+						bits |= 0x0008000000000000;
+
+						return std::bit_cast<T>(bits);
+					}
 				}
+				else if (value == std::numeric_limits<T>::infinity())
+				{
+					return T(0);
+				}
+				else if (value == -std::numeric_limits<T>::infinity())
+				{
+					return -std::numeric_limits<T>::quiet_NaN();
+				}
+				else if (value == T(0))
+				{
+					return std::numeric_limits<T>::infinity();
+				}
+				else if (value < T(0))
+				{
+					return -std::numeric_limits<T>::quiet_NaN();
+				}
+
+				return relaxed::fast_rsqrt(value);
+			}
+
+#if defined(_MSC_VER) || defined(__clang__)
+#pragma float_control(pop)
+#endif
 
 		} // namespace detail
 

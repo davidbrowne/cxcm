@@ -24,6 +24,8 @@ TEST_SUITE("constexpr_math for long double")
 		CHECK(cxcm::is_negative_zero(cxcm::negative_zero<float>));
 		CHECK_UNARY_FALSE(cxcm::is_negative_zero(0.0));
 		CHECK_UNARY_FALSE(cxcm::is_negative_zero(0.0f));
+		CHECK(cxcm::is_negative_zero(-0.0));
+		CHECK(cxcm::is_negative_zero(-0.0f));
 	}
 
 	constexpr bool extended_precision_long_double = std::numeric_limits<long double>::digits == 64;
