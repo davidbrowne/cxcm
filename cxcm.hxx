@@ -51,7 +51,7 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 
 constexpr inline int CXCM_MAJOR_VERSION = 1;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 3;
+constexpr inline int CXCM_PATCH_VERSION = 4;
 
 namespace cxcm
 {
@@ -406,13 +406,13 @@ namespace cxcm
 	constexpr bool is_negative_zero(T val) noexcept;
 
 	template<>
-	constexpr bool is_negative_zero<float>(float val) noexcept
+	constexpr bool is_negative_zero(float val) noexcept
 	{
 		return (0x80000000 == std::bit_cast<unsigned int>(val));
 	}
 
 	template<>
-	constexpr bool is_negative_zero<double>(double val) noexcept
+	constexpr bool is_negative_zero(double val) noexcept
 	{
 		return (0x8000000000000000 == std::bit_cast<unsigned long long>(val));
 	}

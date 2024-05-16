@@ -18,16 +18,6 @@
 
 TEST_SUITE("constexpr_math for long double")
 {
-	TEST_CASE("floating-point negative zero")
-	{
-		CHECK(cxcm::is_negative_zero(cxcm::negative_zero<double>));
-		CHECK(cxcm::is_negative_zero(cxcm::negative_zero<float>));
-		CHECK_UNARY_FALSE(cxcm::is_negative_zero(0.0));
-		CHECK_UNARY_FALSE(cxcm::is_negative_zero(0.0f));
-		CHECK(cxcm::is_negative_zero(-0.0));
-		CHECK(cxcm::is_negative_zero(-0.0f));
-	}
-
 	constexpr bool extended_precision_long_double = std::numeric_limits<long double>::digits == 64;
 
 	TEST_CASE("testing fidelity of cxcm::trunc() with std::trunc() with long double values")
@@ -1754,5 +1744,15 @@ TEST_SUITE("constexpr_math for integral")
 		CHECK(cxcm::round_even(0) == 0.0);
 		CHECK(cxcm::round_even(-1) == -1.0);
 		CHECK(cxcm::round_even(-INT_MAX) == static_cast<double>(-INT_MAX));
+	}
+
+	TEST_CASE("floating-point negative zero")
+	{
+		CHECK(cxcm::is_negative_zero(cxcm::negative_zero<double>));
+		CHECK(cxcm::is_negative_zero(cxcm::negative_zero<float>));
+		CHECK_UNARY_FALSE(cxcm::is_negative_zero(0.0));
+		CHECK_UNARY_FALSE(cxcm::is_negative_zero(0.0f));
+		CHECK(cxcm::is_negative_zero(-0.0));
+		CHECK(cxcm::is_negative_zero(-0.0f));
 	}
 }
