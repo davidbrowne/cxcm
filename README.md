@@ -163,7 +163,7 @@ constexpr T fast_rsqrt(T value) noexcept;
 
 ## Status
 
-Current version: `v1.1.4`
+Current version: `v1.1.5`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -182,9 +182,10 @@ The point of this library is to provide ```constexpr``` versions of certain func
 
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
-* MSVC 2019 - v16.9
-* MSVC 2022 - v17.9.7
+* MSVC 2019 - v16.11.36
+* MSVC 2022 - v17.10.0
 * gcc 11.4.0
+* icx 2022.2.0
 * clang 16.0.6
 
 ```

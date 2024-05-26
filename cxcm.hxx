@@ -51,7 +51,7 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 
 constexpr inline int CXCM_MAJOR_VERSION = 1;
 constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 4;
+constexpr inline int CXCM_PATCH_VERSION = 5;
 
 namespace cxcm
 {
@@ -1006,7 +1006,7 @@ namespace cxcm
 					return x;
 
 				if (x == T(0) && y != T(0))
-					return 0;
+					return x;
 
 				if (y == 0)
 					return std::numeric_limits<T>::quiet_NaN();
