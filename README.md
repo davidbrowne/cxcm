@@ -6,7 +6,7 @@ cxcm is a c++20 library that provides ```constexpr``` versions of some of the fu
 
 Currently this is a single header library. All you need to do is include [cxcm.hxx](https://raw.githubusercontent.com/davidbrowne/cxcm/main/cxcm.hxx). The functions are in the ```cxcm``` namespace.
 
-There are asserts in the codebase that can be disabled by defining the macro ```CXCM_DISABLE_ASSERTS```.
+#define REMOVE_CXCM_SAFETY_CHECKS for speed over safety and exceptions.
 
 ## Motivation
 
@@ -163,7 +163,7 @@ constexpr T fast_rsqrt(T value) noexcept;
 
 ## Status
 
-Current version: `v1.1.5`
+Current version: `v1.1.6`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -183,7 +183,7 @@ The point of this library is to provide ```constexpr``` versions of certain func
 This project uses [doctest](https://github.com/onqtam/doctest) for testing, and we are primarily testing the conformance of ```trunc```, ```floor```, ```ceil```, and ```round``` with ```std::```. The tests have been run on:
 
 * MSVC 2019 - v16.11.36
-* MSVC 2022 - v17.10.0
+* MSVC 2022 - v17.11.5
 * gcc 11.4.0
 * icx 2022.2.0
 * clang 16.0.6

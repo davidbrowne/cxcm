@@ -6,41 +6,21 @@
 // https://github.com/davidbrowne/cxcm
 
 // opening include guard
-#if !defined(CXCM_CXCM_HXX)
-#define CXCM_CXCM_HXX
+#if !defined(CXCM_HXX)
+#define CXCM_HXX
+
+//
+// #define REMOVE_CXCM_SAFETY_CHECKS for speed over safety and exceptions
+//
 
 #include <limits>
 #include <type_traits>
 #include <concepts>
 #include <cmath>
 #include <bit>						// bit_cast
-#include <cassert>
 
-//
-// cxcm_constexpr_assert() derived from https://gist.github.com/oliora/928424f7675d58fadf49c70fdba70d2f
-//
-
-#if defined(CXCM_DISABLE_ASSERTS)
-
-#define cxcm_assertm(exp, msg) ((void)0)
-#define cxcm_constexpr_assert(cond, msg) ((void)0)
-
-#else
-
-#define cxcm_assertm(exp, msg) assert(((void)msg, exp))
-
-// this needs to be NOT constexpr, so attempted use of this function stops constexpr evaluation
-template<class Assert>
-inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
-{
-	std::forward<Assert>(a)();
-}
-
-// When evaluated at compile time emits a compilation error if condition is not true.
-// Invokes the standard assert at run time.
-#define cxcm_constexpr_assert(cond, msg) \
-	((void)(!!(cond) ? 0 : (cxcm_constexpr_assert_failed([](){ assert(((void)msg, !static_cast<bool>(#cond)));}), 0)))
-
+#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
+#include <stdexcept>
 #endif
 
 //
@@ -49,9 +29,9 @@ inline void cxcm_constexpr_assert_failed(Assert &&a) noexcept
 
 // version info
 
-constexpr inline int CXCM_MAJOR_VERSION = 1;
-constexpr inline int CXCM_MINOR_VERSION = 1;
-constexpr inline int CXCM_PATCH_VERSION = 5;
+constexpr int CXCM_MAJOR_VERSION = 1;
+constexpr int CXCM_MINOR_VERSION = 1;
+constexpr int CXCM_PATCH_VERSION = 6;
 
 namespace cxcm
 {
@@ -126,7 +106,11 @@ namespace cxcm
 		// The following code computes fl(a x b) and error(a x b).
 		constexpr double two_prod(double a, double b, double &error) noexcept
 		{
-			double a_high, a_low, b_high, b_low;
+			double a_high = 0.0;
+			double a_low = 0.0;
+			double b_high = 0.0;
+			double b_low = 0.0;
+
 			double p = a * b;
 			split(a, a_high, a_low);
 			split(b, b_high, b_low);
@@ -156,13 +140,33 @@ namespace cxcm
 			constexpr dd_real & operator =(const dd_real &) noexcept = default;
 			constexpr dd_real & operator =(dd_real &&) noexcept = default;
 
-			constexpr double operator [](unsigned int index) const noexcept
+			constexpr double operator [](unsigned int index) const
+#if defined(REMOVE_CXCM_SAFETY_CHECKS)
+				noexcept
+#endif
 			{
+#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
+				if (index > 1)
+				{
+					throw std::out_of_range("invalid dd_real subscript");
+				}
+#endif
+
 				return x[index];
 			}
 
-			constexpr double & operator [](unsigned int index) noexcept
+			constexpr double & operator [](unsigned int index)
+#if defined(REMOVE_CXCM_SAFETY_CHECKS)
+				noexcept
+#endif
 			{
+#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
+				if (index > 1)
+				{
+					throw std::out_of_range("invalid dd_real subscript");
+				}
+#endif
+
 				return x[index];
 			}
 
@@ -182,7 +186,10 @@ namespace cxcm
 		constexpr dd_real ieee_add(const dd_real &a, const dd_real &b) noexcept
 		{
 			// This one satisfies IEEE style error bound, due to K. Briggs and W. Kahan.
-			double s1, s2, t1, t2;
+			double s1 = 0.0;
+			double s2 = 0.0;
+			double t1 = 0.0;
+			double t2 = 0.0;
 
 			s1 = two_sum(a.x[0], b.x[0], s2);
 			t1 = two_sum(a.x[1], b.x[1], t2);
@@ -197,7 +204,8 @@ namespace cxcm
 		constexpr dd_real ieee_add(const dd_real &a, double b) noexcept
 		{
 			// This one satisfies IEEE style error bound, due to K. Briggs and W. Kahan.
-			double s1, s2;
+			double s1 = 0.0;
+			double s2 = 0.0;
 
 			s1 = two_sum(a.x[0], b, s2);
 			s1 = quick_two_sum(s1, s2 + a.x[1], s2);
@@ -208,7 +216,10 @@ namespace cxcm
 		constexpr dd_real ieee_subtract(const dd_real &a, const dd_real &b) noexcept
 		{
 			// This one satisfies IEEE style error bound, due to K. Briggs and W. Kahan.
-			double s1, s2, t1, t2;
+			double s1 = 0.0;
+			double s2 = 0.0;
+			double t1 = 0.0;
+			double t2 = 0.0;
 
 			s1 = two_sum(a.x[0], -b.x[0], s2);
 			t1 = two_sum(a.x[1], -b.x[1], t2);
@@ -223,7 +234,8 @@ namespace cxcm
 		constexpr dd_real ieee_subtract(double a, const dd_real &b) noexcept
 		{
 			// This one satisfies IEEE style error bound, due to K. Briggs and W. Kahan.
-			double s1, s2;
+			double s1 = 0.0;
+			double s2 = 0.0;
 
 			s1 = two_sum(a, -b.x[0], s2);
 			s1 = quick_two_sum(s1, s2 - b.x[1], s2);
@@ -261,7 +273,8 @@ namespace cxcm
 		// double-double * double-double
 		constexpr dd_real operator *(const dd_real &a, const dd_real &b) noexcept
 		{
-			double p1, p2;
+			double p1 = 0.0;
+			double p2 = 0.0;
 
 			p1 = two_prod(a.x[0], b.x[0], p2);
 			p2 += (a.x[0] * b.x[1] + a.x[1] * b.x[0]);
@@ -272,7 +285,8 @@ namespace cxcm
 		// double-double * double
 		constexpr dd_real operator *(const dd_real &a, double b) noexcept
 		{
-			double p1, p2;
+			double p1 = 0.0;
+			double p2 = 0.0;
 
 			p1 = two_prod(a.x[0], b, p2);
 			p1 = quick_two_sum(p1, p2 + (a.x[1] * b), p2);
@@ -287,7 +301,9 @@ namespace cxcm
 
 		constexpr dd_real & operator *=(dd_real &a, const dd_real &b) noexcept
 		{
-			double p1, p2;
+			double p1 = 0.0;
+			double p2 = 0.0;
+
 			p1 = two_prod(a.x[0], b.x[0], p2);
 			p2 += (a.x[0] * b.x[1] + a.x[1] * b.x[0]);
 			a.x[0] = quick_two_sum(p1, p2, a.x[1]);
@@ -296,7 +312,9 @@ namespace cxcm
 
 		constexpr dd_real accurate_div(const dd_real &a, const dd_real &b) noexcept
 		{
-			double q1, q2, q3;
+			double q1 = 0.0;
+			double q2 = 0.0;
+			double q3 = 0.0;
 
 			q1 = a.x[0] / b.x[0];						// approximate quotient
 
@@ -318,7 +336,9 @@ namespace cxcm
 
 		constexpr dd_real accurate_div(double a, const dd_real &b) noexcept
 		{
-			double q1, q2, q3;
+			double q1 = 0.0;
+			double q2 = 0.0;
+			double q3 = 0.0;
 
 			q1 = a / b.x[0];							// approximate quotient
 
@@ -403,7 +423,10 @@ namespace cxcm
 	//
 
 	template <std::floating_point T>
-	constexpr bool is_negative_zero(T val) noexcept;
+	constexpr bool is_negative_zero(T val) noexcept
+	{
+		return false;
+	}
 
 	template<>
 	constexpr bool is_negative_zero(float val) noexcept
@@ -1244,9 +1267,17 @@ namespace cxcm
 		// don't know what to do if someone tries to negate the most negative number.
 		// standard says behavior is undefined if you can't represent the result by return type.
 		template <std::integral T>
-		constexpr T abs(T value) noexcept
+		constexpr T abs(T value)
+#if defined(REMOVE_CXCM_SAFETY_CHECKS)
+			noexcept
+#endif
 		{
-			cxcm_constexpr_assert(value != std::numeric_limits<T>::min(), "undefined behavior in abs()");
+#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
+			if (value == std::numeric_limits<T>::min())
+			{
+				throw std::domain_error("negation of min value is not a valid integral value");
+			}
+#endif
 
 			return relaxed::abs(value);
 		}
@@ -1261,9 +1292,17 @@ namespace cxcm
 		}
 
 		template <std::integral T>
-		constexpr double fabs(T value) noexcept
+		constexpr double fabs(T value)
+#if defined(REMOVE_CXCM_SAFETY_CHECKS)
+			noexcept
+#endif
 		{
-			cxcm_constexpr_assert(value != std::numeric_limits<T>::min(), "undefined behavior in fabs()");
+#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
+			if (value == std::numeric_limits<T>::min())
+			{
+				throw std::domain_error("negation of min value is not a valid integral value");
+			}
+#endif
 
 			return relaxed::fabs(value);
 		}
