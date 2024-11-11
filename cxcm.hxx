@@ -31,7 +31,7 @@
 
 constexpr int CXCM_MAJOR_VERSION = 1;
 constexpr int CXCM_MINOR_VERSION = 1;
-constexpr int CXCM_PATCH_VERSION = 6;
+constexpr int CXCM_PATCH_VERSION = 7;
 
 namespace cxcm
 {
@@ -45,7 +45,7 @@ namespace cxcm
 			This work was supported by the Director, Office of Science, Division
 			of Mathematical, Information, and Computational Sciences of the
 			U.S. Department of Energy under contract number DE-AC03-76SF00098.
- 
+
 			Copyright (c) 2000-2007
 
 			1. Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -53,10 +53,10 @@ namespace cxcm
 				(1) Redistributions of source code must retain the copyright notice, this list of conditions and the following disclaimer.
 
 				(2) Redistributions in binary form must reproduce the copyright notice, this list of conditions and the following disclaimer in the documentation
-				    and/or other materials provided with the distribution.
+					and/or other materials provided with the distribution.
 
 				(3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Dept. of Energy nor the names of its contributors
-				    may be used to endorse or promote products derived from this software without specific prior written permission.
+					may be used to endorse or promote products derived from this software without specific prior written permission.
 
 			2. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 			   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
@@ -127,18 +127,18 @@ namespace cxcm
 			{
 			}
 
-			constexpr dd_real(double hi, double lo) noexcept : x{ hi, lo }
+			constexpr dd_real(double hi, double lo) noexcept : x{hi, lo}
 			{
 			}
 
-			explicit constexpr dd_real(double h) noexcept : x{ h, 0. }
+			explicit constexpr dd_real(double h) noexcept : x{h, 0.}
 			{
 			}
 
 			constexpr dd_real(const dd_real &) noexcept = default;
 			constexpr dd_real(dd_real &&) noexcept = default;
-			constexpr dd_real & operator =(const dd_real &) noexcept = default;
-			constexpr dd_real & operator =(dd_real &&) noexcept = default;
+			constexpr dd_real &operator =(const dd_real &) noexcept = default;
+			constexpr dd_real &operator =(dd_real &&) noexcept = default;
 
 			constexpr double operator [](unsigned int index) const
 #if defined(REMOVE_CXCM_SAFETY_CHECKS)
@@ -155,7 +155,7 @@ namespace cxcm
 				return x[index];
 			}
 
-			constexpr double & operator [](unsigned int index)
+			constexpr double &operator [](unsigned int index)
 #if defined(REMOVE_CXCM_SAFETY_CHECKS)
 				noexcept
 #endif
@@ -299,7 +299,7 @@ namespace cxcm
 			return (b * a);
 		}
 
-		constexpr dd_real & operator *=(dd_real &a, const dd_real &b) noexcept
+		constexpr dd_real &operator *=(dd_real &a, const dd_real &b) noexcept
 		{
 			double p1 = 0.0;
 			double p2 = 0.0;
@@ -327,7 +327,8 @@ namespace cxcm
 
 			q1 = quick_two_sum(q1, q2, q2);
 
-			double s1, s2;
+			double s1 = 0.0;
+			double s2 = 0.0;
 			s1 = two_sum(q1, q3, s2);
 			s1 = quick_two_sum(s1, s2 + q2, s2);
 
@@ -351,7 +352,8 @@ namespace cxcm
 
 			q1 = quick_two_sum(q1, q2, q2);
 
-			double s1, s2;
+			double s1 = 0.0;
+			double s2 = 0.0;
 			s1 = two_sum(q1, q3, s2);
 			s1 = quick_two_sum(s1, s2 + q2, s2);
 
@@ -406,16 +408,16 @@ namespace cxcm
 		// the largest floating point value that has a fractional representation
 
 		template <std::floating_point T>
-		constexpr inline T largest_fractional_value = T();
+		constexpr T largest_fractional_value = T();
 
 		template <>
-		constexpr inline long double largest_fractional_value<long double> = detail::get_largest_fractional_long_double();
+		constexpr long double largest_fractional_value<long double> = detail::get_largest_fractional_long_double();
 
 		template <>
-		constexpr inline double largest_fractional_value<double> = 0x1.fffffffffffffp+51;
+		constexpr double largest_fractional_value<double> = 0x1.fffffffffffffp+51;
 
 		template <>
-		constexpr inline float largest_fractional_value<float> = 0x1.fffffep+22f;
+		constexpr float largest_fractional_value<float> = 0x1.fffffep+22f;
 	}
 
 	//
@@ -441,13 +443,13 @@ namespace cxcm
 	}
 
 	template <std::floating_point T>
-	constexpr inline T negative_zero = T(-0);
+	constexpr T negative_zero = T(-0);
 
 	template <>
-	constexpr inline float negative_zero<float> = std::bit_cast<float>(0x80000000);
+	constexpr float negative_zero<float> = std::bit_cast<float>(0x80000000);
 
 	template <>
-	constexpr inline double negative_zero<double> = std::bit_cast<double>(0x8000000000000000);
+	constexpr double negative_zero<double> = std::bit_cast<double>(0x8000000000000000);
 
 	// don't worry about esoteric input.
 	// much faster than strict or standard when non constant evaluated,
@@ -759,10 +761,10 @@ namespace cxcm
 #endif
 
 	template <std::floating_point T>
-	#if defined(__GNUC__) && !defined(__clang__)
-		__attribute__((optimize("-fno-fast-math")))
-	#endif
-	constexpr bool isnan(T value) noexcept
+#if defined(__GNUC__) && !defined(__clang__)
+	__attribute__((optimize("-fno-fast-math")))
+#endif
+		constexpr bool isnan(T value) noexcept
 	{
 		return (value != value);
 	}
@@ -782,10 +784,10 @@ namespace cxcm
 #endif
 
 	template <std::floating_point T>
-	#if defined(__GNUC__) && !defined(__clang__)
-		__attribute__((optimize("-fno-fast-math")))
-	#endif
-	constexpr bool isinf(T value) noexcept
+#if defined(__GNUC__) && !defined(__clang__)
+	__attribute__((optimize("-fno-fast-math")))
+#endif
+		constexpr bool isinf(T value) noexcept
 	{
 		return (value == -std::numeric_limits<T>::infinity()) || (value == std::numeric_limits<T>::infinity());
 	}
@@ -1072,10 +1074,10 @@ namespace cxcm
 #endif
 
 			template <std::floating_point T>
-			#if defined(__GNUC__) && !defined(__clang__)
-				__attribute__((optimize("-fno-fast-math")))
-			#endif
-			constexpr T constexpr_sqrt(T value) noexcept
+#if defined(__GNUC__) && !defined(__clang__)
+			__attribute__((optimize("-fno-fast-math")))
+#endif
+				constexpr T constexpr_sqrt(T value) noexcept
 			{
 				// screen out unnecessary input
 
@@ -1135,10 +1137,10 @@ namespace cxcm
 #endif
 
 			template <std::floating_point T>
-			#if defined(__GNUC__) && !defined(__clang__)
-				__attribute__((optimize("-fno-fast-math")))
-			#endif
-			constexpr T constexpr_rsqrt(T value) noexcept
+#if defined(__GNUC__) && !defined(__clang__)
+			__attribute__((optimize("-fno-fast-math")))
+#endif
+				constexpr T constexpr_rsqrt(T value) noexcept
 			{
 				// screen out unnecessary input
 
@@ -1194,10 +1196,10 @@ namespace cxcm
 #endif
 
 			template <std::floating_point T>
-			#if defined(__GNUC__) && !defined(__clang__)
-				__attribute__((optimize("-fno-fast-math")))
-			#endif
-			constexpr T constexpr_fast_rsqrt(T value) noexcept
+#if defined(__GNUC__) && !defined(__clang__)
+			__attribute__((optimize("-fno-fast-math")))
+#endif
+				constexpr T constexpr_fast_rsqrt(T value) noexcept
 			{
 				// screen out unnecessary input
 
