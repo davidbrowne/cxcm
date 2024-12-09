@@ -9,32 +9,30 @@
 #if !defined(CXCM_HXX)
 #define CXCM_HXX
 
-//
-// #define REMOVE_CXCM_SAFETY_CHECKS for speed over safety and exceptions
-//
-
 #include <limits>
 #include <type_traits>
 #include <concepts>
 #include <cmath>
 #include <bit>						// bit_cast
-
-#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
 #include <stdexcept>
-#endif
 
 //
 // ConstXpr CMath -- cxcm
 //
 
-// version info
-
-constexpr int CXCM_MAJOR_VERSION = 1;
-constexpr int CXCM_MINOR_VERSION = 1;
-constexpr int CXCM_PATCH_VERSION = 7;
-
 namespace cxcm
 {
+    //          Copyright David Browne 2020-2024.
+    // Distributed under the Boost Software License, Version 1.0.
+    //    (See accompanying file LICENSE_1_0.txt or copy at
+    //          https://www.boost.org/LICENSE_1_0.txt)
+ 
+	// version info
+
+	constexpr int CXCM_MAJOR_VERSION = 1;
+	constexpr int CXCM_MINOR_VERSION = 1;
+	constexpr int CXCM_PATCH_VERSION = 8;
+
 	namespace dd_real
 	{
 		// https://www.davidhbailey.com/dhbsoftware/ - QD
@@ -140,33 +138,13 @@ namespace cxcm
 			constexpr dd_real &operator =(const dd_real &) noexcept = default;
 			constexpr dd_real &operator =(dd_real &&) noexcept = default;
 
-			constexpr double operator [](unsigned int index) const
-#if defined(REMOVE_CXCM_SAFETY_CHECKS)
-				noexcept
-#endif
+			constexpr double operator [](unsigned int index) const noexcept
 			{
-#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
-				if (index > 1)
-				{
-					throw std::out_of_range("invalid dd_real subscript");
-				}
-#endif
-
 				return x[index];
 			}
 
-			constexpr double &operator [](unsigned int index)
-#if defined(REMOVE_CXCM_SAFETY_CHECKS)
-				noexcept
-#endif
+			constexpr double &operator [](unsigned int index) noexcept
 			{
-#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
-				if (index > 1)
-				{
-					throw std::out_of_range("invalid dd_real subscript");
-				}
-#endif
-
 				return x[index];
 			}
 
@@ -425,7 +403,7 @@ namespace cxcm
 	//
 
 	template <std::floating_point T>
-	constexpr bool is_negative_zero(T val) noexcept
+	constexpr bool is_negative_zero(T) noexcept
 	{
 		return false;
 	}
@@ -1260,26 +1238,48 @@ namespace cxcm
 		template <std::floating_point T>
 		constexpr T abs(T value) noexcept
 		{
-			if (!detail::isnormal_or_subnormal(value))
-				return value;
+			auto new_value = cxcm::copysign(value, T(+1));
 
-			return relaxed::abs(value);
+#if NDEBUG
+			return new_value;
+#else
+			if (isnan(new_value))
+			{
+				if constexpr (sizeof(T) == 4)
+				{
+					unsigned int bits = std::bit_cast<unsigned int>(new_value);
+
+					// set the is_quiet bit
+					bits |= 0x00400000;
+
+					return std::bit_cast<T>(bits);
+				}
+				else if constexpr (sizeof(T) == 8)
+				{
+					unsigned long long bits = std::bit_cast<unsigned long long>(new_value);
+
+					// set the is_quiet bit
+					bits |= 0x0008000000000000;
+
+					return std::bit_cast<T>(bits);
+				}
+			}
+			else
+			{
+				return new_value;
+			}
+#endif
 		}
 
 		// don't know what to do if someone tries to negate the most negative number.
 		// standard says behavior is undefined if you can't represent the result by return type.
 		template <std::integral T>
 		constexpr T abs(T value)
-#if defined(REMOVE_CXCM_SAFETY_CHECKS)
-			noexcept
-#endif
 		{
-#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
 			if (value == std::numeric_limits<T>::min())
 			{
 				throw std::domain_error("negation of min value is not a valid integral value");
 			}
-#endif
 
 			return relaxed::abs(value);
 		}
@@ -1287,24 +1287,16 @@ namespace cxcm
 		template <std::floating_point T>
 		constexpr T fabs(T value) noexcept
 		{
-			if (!detail::isnormal_or_subnormal(value))
-				return value;
-
-			return relaxed::fabs(value);
+			return cxcm::abs(value);
 		}
 
 		template <std::integral T>
 		constexpr double fabs(T value)
-#if defined(REMOVE_CXCM_SAFETY_CHECKS)
-			noexcept
-#endif
 		{
-#if !defined(REMOVE_CXCM_SAFETY_CHECKS)
 			if (value == std::numeric_limits<T>::min())
 			{
 				throw std::domain_error("negation of min value is not a valid integral value");
 			}
-#endif
 
 			return relaxed::fabs(value);
 		}
