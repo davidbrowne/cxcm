@@ -566,12 +566,12 @@ TEST_SUITE("constexpr_math for double")
 {
 	TEST_CASE("testing fidelity of cxcm::fabs() with std::fabs() for double values")
 	{
-		auto pos_nan = std::numeric_limits<double>::quiet_NaN();
-		auto neg_nan = -std::numeric_limits<double>::quiet_NaN();
-		auto pos_inf = std::numeric_limits<double>::infinity();
-		auto neg_inf = -std::numeric_limits<double>::infinity();
-		double pos_zero = 0;
-		double neg_zero = std::copysign(0.0, -1.0);
+		[[ maybe_unused ]] auto pos_nan = std::numeric_limits<double>::quiet_NaN();
+		[[ maybe_unused ]] auto neg_nan = -std::numeric_limits<double>::quiet_NaN();
+		[[ maybe_unused ]] auto pos_inf = std::numeric_limits<double>::infinity();
+		[[ maybe_unused ]] auto neg_inf = -std::numeric_limits<double>::infinity();
+		[[ maybe_unused ]] double pos_zero = 0;
+		[[ maybe_unused ]] double neg_zero = std::copysign(0.0, -1.0);
 
 		CHECK_EQ(cxcm::fabs(neg_inf), pos_inf);
 		CHECK_UNARY_FALSE(cxcm::is_negative_zero(cxcm::fabs(neg_zero)));
