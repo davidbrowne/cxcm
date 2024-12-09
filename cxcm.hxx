@@ -31,7 +31,7 @@ namespace cxcm
 
 	constexpr int CXCM_MAJOR_VERSION = 1;
 	constexpr int CXCM_MINOR_VERSION = 1;
-	constexpr int CXCM_PATCH_VERSION = 8;
+	constexpr int CXCM_PATCH_VERSION = 9;
 
 	namespace dd_real
 	{
