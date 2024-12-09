@@ -386,16 +386,16 @@ namespace cxcm
 		// the largest floating point value that has a fractional representation
 
 		template <std::floating_point T>
-		constexpr T largest_fractional_value = T();
+		constexpr inline T largest_fractional_value = T();
 
 		template <>
-		constexpr long double largest_fractional_value<long double> = detail::get_largest_fractional_long_double();
+		constexpr inline long double largest_fractional_value<long double> = detail::get_largest_fractional_long_double();
 
 		template <>
-		constexpr double largest_fractional_value<double> = 0x1.fffffffffffffp+51;
+		constexpr inline double largest_fractional_value<double> = 0x1.fffffffffffffp+51;
 
 		template <>
-		constexpr float largest_fractional_value<float> = 0x1.fffffep+22f;
+		constexpr inline float largest_fractional_value<float> = 0x1.fffffep+22f;
 	}
 
 	//
@@ -421,13 +421,13 @@ namespace cxcm
 	}
 
 	template <std::floating_point T>
-	constexpr T negative_zero = T(-0);
+	constexpr inline T negative_zero = T(-0);
 
 	template <>
-	constexpr float negative_zero<float> = std::bit_cast<float>(0x80000000);
+	constexpr inline float negative_zero<float> = std::bit_cast<float>(0x80000000);
 
 	template <>
-	constexpr double negative_zero<double> = std::bit_cast<double>(0x8000000000000000);
+	constexpr inline double negative_zero<double> = std::bit_cast<double>(0x8000000000000000);
 
 	// don't worry about esoteric input.
 	// much faster than strict or standard when non constant evaluated,
