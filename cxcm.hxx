@@ -1240,7 +1240,7 @@ namespace cxcm
 		{
 			auto new_value = cxcm::copysign(value, T(+1));
 
-#if NDEBUG && !defined(__clang__)
+#if NDEBUG
 			return new_value;
 #else
 			if (isnan(new_value))
