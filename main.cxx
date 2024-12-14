@@ -12,12 +12,12 @@
 #include "doctest.h"
 
 
-void test_fabs_float(unsigned int i, long long &above, long long &below, long long &same)
+void test_floor_float(unsigned int i, long long &above, long long &below, long long &same)
 {
 	float f = std::bit_cast<float>(i);
 
-	auto val1 = cxcm::fabs(f);
-	auto val2 = std::fabs(f);
+	auto val1 = std::floor(f);
+	auto val2 = cxcm::detail::constexpr_floor(f);
 
 	auto res1 = std::bit_cast<unsigned int>(val1);
 	auto res2 = std::bit_cast<unsigned int>(val2);
@@ -25,23 +25,28 @@ void test_fabs_float(unsigned int i, long long &above, long long &below, long lo
 	if (res1 < res2)
 	{
 		++above;
-		std::printf("trouble maker?  %X, %X < %X\n", i, res1, res2);
+		std::printf("trouble maker above?  %X: %X < %X\n", i, res1, res2);
 	}
 	else if (res1 > res2)
+	{
 		++below;
+		std::printf("trouble maker below?  %X: %X > %X\n", i, res1, res2);
+	}
 	else
+	{
 		++same;
+	}
 }
 
-void test_all_floats_fabs()
+void test_all_floats_floor()
 {
 	long long below{};
 	long long above{};
 	long long same{};
-	test_fabs_float(0xFFFFFFFF, above, below, same);
+	test_floor_float(0xFFFFFFFF, above, below, same);
 	for (unsigned int i = 0x00000000; i < 0xFFFFFFFF; ++i)
 	{
-		test_fabs_float(i, above, below, same);
+		test_floor_float(i, above, below, same);
 	}
 
 	std::printf("same std : %lld\n", same);
@@ -57,7 +62,7 @@ int main(int argc, char *argv[])
 	// fun stuff
 	//
 
-	test_all_floats_fabs();
+	test_all_floats_floor();
 
 	[[ maybe_unused ]] auto a = cxcm::fabs(-3);
 
