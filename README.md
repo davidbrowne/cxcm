@@ -6,8 +6,6 @@ cxcm is a c++20 library that provides ```constexpr``` versions of some of the fu
 
 Currently this is a single header library. All you need to do is include [cxcm.hxx](https://raw.githubusercontent.com/davidbrowne/cxcm/main/cxcm.hxx). The functions are in the ```cxcm``` namespace.
 
-#define REMOVE_CXCM_SAFETY_CHECKS for speed over safety and exceptions.
-
 ## Motivation
 
 Originally I was working on a project dealing with periodic intervals, and I wanted to make the project as constexpr as I could. The most important functions for me from ```<cmath>``` were ```std::floor()``` and ```std::ceil()```. I looked for constexpr ```<cmath>``` projects, and discovered that none that I found matched my requirements.
@@ -163,7 +161,7 @@ constexpr T fast_rsqrt(T value) noexcept;
 
 ## Status
 
-Current version: `v1.1.10`
+Current version: `v1.2.0`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 

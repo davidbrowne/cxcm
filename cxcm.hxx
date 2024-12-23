@@ -22,7 +22,7 @@
 
 namespace cxcm
 {
-    //          Copyright David Browne 2020-2024.
+    //          Copyright David Browne 2020-2025.
     // Distributed under the Boost Software License, Version 1.0.
     //    (See accompanying file LICENSE_1_0.txt or copy at
     //          https://www.boost.org/LICENSE_1_0.txt)
@@ -30,8 +30,8 @@ namespace cxcm
 	// version info
 
 	constexpr int CXCM_MAJOR_VERSION = 1;
-	constexpr int CXCM_MINOR_VERSION = 1;
-	constexpr int CXCM_PATCH_VERSION = 10;
+	constexpr int CXCM_MINOR_VERSION = 2;
+	constexpr int CXCM_PATCH_VERSION = 0;
 
 	namespace dd_real
 	{
@@ -355,7 +355,7 @@ namespace cxcm
 	namespace concepts
 	{
 		template <typename T>
-		concept basic_floating_point = (std::is_same_v<float, T> || std::is_same_v<double, T>);
+		concept basic_floating_point = (std::is_same_v<float, std::remove_cvref_t<T>> || std::is_same_v<double, std::remove_cvref_t<T>>);
 	}
 
 	namespace limits
@@ -754,6 +754,12 @@ namespace cxcm
 #pragma float_control(pop)
 #endif
 
+	template <std::integral T>
+	constexpr bool isnan(T value) noexcept
+	{
+		return isnan(static_cast<double>(value));
+	}
+
 	//
 	// isinf()
 	//
@@ -777,6 +783,12 @@ namespace cxcm
 #pragma float_control(pop)
 #endif
 
+	template <std::integral T>
+	constexpr bool isinf(T value) noexcept
+	{
+		return isinf(static_cast<double>(value));
+	}
+
 	//
 	// fpclassify()
 	//
@@ -796,6 +808,12 @@ namespace cxcm
 		return FP_NORMAL;
 	}
 
+	template <std::integral T>
+	constexpr int fpclassify(T value) noexcept
+	{
+		return fpclassify(static_cast<double>(value));
+	}
+
 	//
 	// isnormal()
 	//
@@ -806,6 +824,12 @@ namespace cxcm
 		return (fpclassify(value) == FP_NORMAL);
 	}
 
+	template <std::integral T>
+	constexpr bool isnormal(T value) noexcept
+	{
+		return isnormal(static_cast<double>(value));
+	}
+
 	//
 	// isfinite()
 	//
@@ -814,6 +838,12 @@ namespace cxcm
 	constexpr bool isfinite(T value) noexcept
 	{
 		return !isnan(value) && !isinf(value);
+	}
+
+	template <std::integral T>
+	constexpr bool isfinite(T value) noexcept
+	{
+		return isfinite(static_cast<double>(value));
 	}
 
 	//
@@ -834,6 +864,12 @@ namespace cxcm
 			unsigned long long bits = std::bit_cast<unsigned long long>(value);
 			return (bits & 0x8000000000000000) != 0;
 		}
+	}
+
+	template <std::integral T>
+	constexpr bool signbit(T value) noexcept
+	{
+		return signbit(static_cast<double>(value));
 	}
 
 	//
@@ -867,6 +903,12 @@ namespace cxcm
 
 			return std::bit_cast<T>(bits);
 		}
+	}
+
+	template <std::integral T>
+	constexpr double copysign(T value, T sgn) noexcept
+	{
+		return copysign(static_cast<double>(value), static_cast<double>(sgn));
 	}
 
 	// try and match standard library requirements.
@@ -1320,7 +1362,7 @@ namespace cxcm
 		template <std::integral T>
 		constexpr double trunc(T value) noexcept
 		{
-			return value;
+			return trunc(static_cast<double>(value));
 		}
 
 		//
@@ -1345,7 +1387,7 @@ namespace cxcm
 		template <std::integral T>
 		constexpr double floor(T value) noexcept
 		{
-			return value;
+			return floor(static_cast<double>(value));
 		}
 
 		//
@@ -1370,7 +1412,7 @@ namespace cxcm
 		template <std::integral T>
 		constexpr double ceil(T value) noexcept
 		{
-			return value;
+			return ceil(static_cast<double>(value));
 		}
 
 		//
@@ -1395,7 +1437,7 @@ namespace cxcm
 		template <std::integral T>
 		constexpr double round(T value) noexcept
 		{
-			return value;
+			return round(static_cast<double>(value));
 		}
 
 		//
@@ -1413,9 +1455,9 @@ namespace cxcm
 		}
 
 		template <std::integral T>
-		constexpr double fract(T /* value */) noexcept
+		constexpr double fract(T value) noexcept
 		{
-			return 0.0;
+			return fract(static_cast<double>(value));
 		}
 
 		//
@@ -1437,6 +1479,12 @@ namespace cxcm
 			}
 		}
 
+		template <std::integral T>
+		constexpr double fmod(T x, T y) noexcept
+		{
+			return fmod(static_cast<double>(x), static_cast<double>(y));
+		}
+
 		//
 		// round_even()
 		//
@@ -1454,7 +1502,7 @@ namespace cxcm
 		template <std::integral T>
 		constexpr double round_even(T value) noexcept
 		{
-			return value;
+			return round_even(static_cast<double>(value));
 		}
 
 		//
@@ -1474,6 +1522,12 @@ namespace cxcm
 			}
 		}
 
+		template <std::integral T>
+		constexpr double sqrt(T value) noexcept
+		{
+			return sqrt(static_cast<double>(value));
+		}
+
 		//
 		// rsqrt() - inverse square root
 		//
@@ -1486,6 +1540,12 @@ namespace cxcm
 			return detail::constexpr_rsqrt(value);
 		}
 
+		template <std::integral T>
+		constexpr double rsqrt(T value) noexcept
+		{
+			return rsqrt(static_cast<double>(value));
+		}
+
 		//
 		// fast_rsqrt() - fast good approximation to inverse square root
 		//
@@ -1496,6 +1556,12 @@ namespace cxcm
 		constexpr T fast_rsqrt(T value) noexcept
 		{
 			return detail::constexpr_fast_rsqrt(value);
+		}
+
+		template <std::integral T>
+		constexpr double fast_rsqrt(T value) noexcept
+		{
+			return fast_rsqrt(static_cast<double>(value));
 		}
 
 	} // namespace strict
