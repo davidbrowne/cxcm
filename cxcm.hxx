@@ -1,4 +1,4 @@
-//          Copyright David Browne 2020-2024.
+//          Copyright David Browne 2020-2026.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          https://www.boost.org/LICENSE_1_0.txt)
@@ -22,11 +22,13 @@
 
 namespace cxcm
 {
-    //          Copyright David Browne 2020-2025.
+    //          Copyright David Browne 2020-2026.
     // Distributed under the Boost Software License, Version 1.0.
     //    (See accompanying file LICENSE_1_0.txt or copy at
     //          https://www.boost.org/LICENSE_1_0.txt)
  
+	// https://github.com/davidbrowne/cxcm - cxcm
+
 	// version info
 
 	constexpr int CXCM_MAJOR_VERSION = 1;
@@ -356,7 +358,8 @@ namespace cxcm
 	{
 		template <typename T>
 		concept basic_floating_point = (std::is_same_v<float, std::remove_cvref_t<T>> || std::is_same_v<double, std::remove_cvref_t<T>>);
-	}
+
+	}	// namespace concepts
 
 	namespace limits
 	{
@@ -383,7 +386,8 @@ namespace cxcm
 					return 0x1.fffffffffffffp+51L;
 				}
 			}
-		}
+
+			}	// namespace detail
 
 		//
 		// largest_fractional_value
@@ -399,7 +403,8 @@ namespace cxcm
 
 		template <>
 		constexpr inline float largest_fractional_value<float> = 0x1.fffffep+22f;
-	}
+
+		}	// namespace limits
 
 	//
 	// floating-point negative zero support
@@ -437,7 +442,6 @@ namespace cxcm
 	// though standard library is a little better in debugger.
 	namespace relaxed
 	{
-
 		//
 		// abs(), fabs()
 		//
@@ -616,7 +620,6 @@ namespace cxcm
 
 		namespace detail
 		{
-
 			// "Improving the Accuracy of the Fast Inverse Square Root by Modifying Newton-Raphson Corrections" 2021
 			// https://www.mdpi.com/1099-4300/23/1/86
 			//
@@ -706,7 +709,7 @@ namespace cxcm
 				}
 			}
 
-		}
+		}	// namespace detail
 
 		// constexpr square root, uses higher precision behind the scenes
 		template <cxcm::concepts::basic_floating_point T>
@@ -915,7 +918,6 @@ namespace cxcm
 	// this namespace is pulled into parent namespace via inline.
 	inline namespace strict
 	{
-
 		namespace detail
 		{
 			//
@@ -1320,7 +1322,7 @@ namespace cxcm
 				throw std::domain_error("negation of min value is not a valid integral value");
 			}
 
-			return relaxed::abs(value);
+			[[ likely ]] return relaxed::abs(value);
 		}
 
 		template <cxcm::concepts::basic_floating_point T>
@@ -1337,7 +1339,7 @@ namespace cxcm
 				throw std::domain_error("negation of min value is not a valid integral value");
 			}
 
-			return relaxed::fabs(value);
+			[[ likely ]] return relaxed::fabs(value);
 		}
 
 		//
