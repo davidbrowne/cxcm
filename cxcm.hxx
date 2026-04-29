@@ -33,7 +33,7 @@ namespace cxcm
 
 	constexpr int CXCM_MAJOR_VERSION = 1;
 	constexpr int CXCM_MINOR_VERSION = 2;
-	constexpr int CXCM_PATCH_VERSION = 0;
+	constexpr int CXCM_PATCH_VERSION = 1;
 
 	namespace dd_real
 	{
@@ -1216,26 +1216,26 @@ namespace cxcm
 
 				if (isnan(value))
 				{
-					return detail::convert_to_quiet_nan(value);
+					[[ unlikely ]] return detail::convert_to_quiet_nan(value);
 				}
 				else if (value == std::numeric_limits<T>::infinity())
 				{
-					return T(0);
+					[[ unlikely ]] return T(0);
 				}
 				else if (value == -std::numeric_limits<T>::infinity())
 				{
-					return -std::numeric_limits<T>::quiet_NaN();
+					[[ unlikely ]] return -std::numeric_limits<T>::quiet_NaN();
 				}
 				else if (value == T(0))
 				{
-					return std::numeric_limits<T>::infinity();
+					[[ unlikely ]] return std::numeric_limits<T>::infinity();
 				}
 				else if (value < T(0))
 				{
-					return -std::numeric_limits<T>::quiet_NaN();
+					[[ unlikely ]] return -std::numeric_limits<T>::quiet_NaN();
 				}
 
-				return relaxed::rsqrt(value);
+				[[ likely ]] return relaxed::rsqrt(value);
 			}
 
 #if defined(_MSC_VER) || defined(__clang__)
@@ -1319,7 +1319,7 @@ namespace cxcm
 		{
 			if (value == std::numeric_limits<T>::min())
 			{
-				throw std::domain_error("negation of min value is not a valid integral value");
+				[[ unlikely ]] throw std::domain_error("negation of min value is not a valid integral value");
 			}
 
 			[[ likely ]] return relaxed::abs(value);
@@ -1336,7 +1336,7 @@ namespace cxcm
 		{
 			if (value == std::numeric_limits<T>::min())
 			{
-				throw std::domain_error("negation of min value is not a valid integral value");
+				[[ unlikely ]] throw std::domain_error("negation of min value is not a valid integral value");
 			}
 
 			[[ likely ]] return relaxed::fabs(value);
@@ -1534,12 +1534,20 @@ namespace cxcm
 		// rsqrt() - inverse square root
 		//
 
-		// there is no standard c++ version of this, so always call constexpr version
+		// there is no standard c++ version of this
 
 		template <cxcm::concepts::basic_floating_point T>
 		constexpr T rsqrt(T value) noexcept
 		{
-			return detail::constexpr_rsqrt(value);
+			if (std::is_constant_evaluated())
+			{
+				return detail::constexpr_rsqrt(value);
+			}
+			else
+			{
+				return T(1) / std::sqrt(value);
+			}
+
 		}
 
 		template <std::integral T>

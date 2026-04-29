@@ -609,7 +609,8 @@ TEST_SUITE("constexpr_math for double")
 		CHECK_EQ(std::numbers::sqrt3_v<double>, cxcm::sqrt(3.0));
 		CHECK_EQ(std::numbers::phi_v<double>, (1.0 + cxcm::sqrt(5.0)) / 2.0);
 
-		CHECK_EQ(std::numbers::inv_sqrt3_v<double>, cxcm::rsqrt(3.0));
+		CHECK(std::numbers::inv_sqrt3_v<double> == doctest::Approx(cxcm::rsqrt(3.0)));
+//		CHECK_EQ(std::numbers::inv_sqrt3_v<double>, cxcm::rsqrt(3.0));
 		CHECK_EQ(std::numbers::inv_sqrtpi_v<double>, cxcm::rsqrt(std::numbers::pi_v<double>));
 	}
 }
