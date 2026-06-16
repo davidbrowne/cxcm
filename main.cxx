@@ -12,6 +12,7 @@
 
 #include "doctest.h"
 
+// not accurate, but gives answers in the ballpark
 double fast_sqrt_simple(double x)
 {
 	double a = std::floor(std::log2(x));
@@ -80,8 +81,6 @@ void test_all_floats_sqrt()
 void sandbox_function()
 {
 	// put fun code here
-
-	[[ maybe_unused ]] auto a = cxcm::fabs(-3);
 
 #if defined(__INTEL_LLVM_COMPILER)
 	std::cout << "__INTEL_LLVM_COMPILER = " << __INTEL_LLVM_COMPILER << "\n";

@@ -33,7 +33,7 @@ namespace cxcm
 
 	constexpr int CXCM_MAJOR_VERSION = 1;
 	constexpr int CXCM_MINOR_VERSION = 2;
-	constexpr int CXCM_PATCH_VERSION = 1;
+	constexpr int CXCM_PATCH_VERSION = 9;
 
 	namespace dd_real
 	{
@@ -135,6 +135,10 @@ namespace cxcm
 			{
 			}
 
+			explicit constexpr dd_real(float h) noexcept : x{static_cast<double>(h), 0.}
+			{
+			}
+
 			constexpr dd_real(const dd_real &) noexcept = default;
 			constexpr dd_real(dd_real &&) noexcept = default;
 			constexpr dd_real &operator =(const dd_real &) noexcept = default;
@@ -161,6 +165,11 @@ namespace cxcm
 			}
 
 		};
+
+		constexpr bool operator ==(const dd_real &a, const dd_real &b) noexcept
+		{
+			return (a.x[0] == b.x[0]) && (a.x[1] == b.x[1]);
+		}
 
 		// double-double + double-double
 		constexpr dd_real ieee_add(const dd_real &a, const dd_real &b) noexcept
@@ -646,66 +655,216 @@ namespace cxcm
 			template <cxcm::concepts::basic_floating_point T>
 			constexpr T converging_sqrt(T arg) noexcept
 			{
+				// make sure this is a double so we can use it for higher precision when T is float
 				const double boosted_arg = arg;
+
+				// highly accurate initial guess for the square root, so there shouldn't be many convergence steps needed
 				double init_value = boosted_arg * fast_rsqrt(boosted_arg);
 
 				if constexpr (std::is_same_v<T, double>)
 				{
-					// boosted_arg doesn't need to be a dd_real for [T = double]
-
+						// 2 steps of saved previous values for detecting 2-cycle oscillations
 					auto current_value = dd_real::dd_real(init_value);
 					auto previous_value = dd_real::dd_real(0.0);
+					auto preprevious_value = dd_real::dd_real(0.0);
 
-					while ((current_value[0] != previous_value[0]) && (current_value[0] * current_value[0] != boosted_arg))
+					// in case there are more than 2 steps of oscillation, find a cutoff point to stop looping
+					int iterations = 0;
+					constexpr int max_iterations = 10;
+
+					constexpr auto half = dd_real::dd_real(0.5);
+
+					while ((current_value[0] != previous_value[0]) &&
+						   (current_value[0] * current_value[0] != boosted_arg))
 					{
+							// update saved values and generate the next one
+						preprevious_value = previous_value;
 						previous_value = current_value;
-						current_value = 0.5 * (current_value + (boosted_arg / current_value));
-					}
+						current_value = half * (current_value + (boosted_arg / current_value));
 
+						// 2-cycle oscillation detected
+						if (current_value[0] == preprevious_value[0])
+							break;
+
+						// longer cycle safety net
+						if (++iterations >= max_iterations)
+							break;
+					}
 					return static_cast<double>(current_value);
 				}
 				else if constexpr (std::is_same_v<T, float>)
 				{
+						// 2 steps of saved previous values for detecting 2-cycle oscillations
 					double current_value = init_value;
 					double previous_value = 0.0;
+					double preprevious_value = 0.0;
 
-					while ((current_value != previous_value) && (current_value * current_value != boosted_arg))
+					// in case there are more than 2 steps of oscillation, find a cutoff point to stop looping
+					int iterations = 0;
+					constexpr int max_iterations = 10;
+
+					while ((current_value != previous_value) &&
+						   (current_value * current_value != boosted_arg))
 					{
+						// update saved values and generate the next one
+						preprevious_value = previous_value;
 						previous_value = current_value;
 						current_value = 0.5 * (current_value + (boosted_arg / current_value));
-					}
 
+						// 2-cycle oscillation detected
+						if (current_value == preprevious_value)
+							break;
+
+						// longer cycle safety net
+						if (++iterations >= max_iterations)
+							break;
+					}
 					return static_cast<float>(current_value);
 				}
 			}
 
 			// float uses double internally, double uses dd_real internally
 			template <cxcm::concepts::basic_floating_point T>
-			constexpr T inverse_sqrt(T arg) noexcept
+			constexpr T converging_inverse_sqrt(T arg) noexcept
 			{
-				// don't need this to be a dd_real
+				// make sure this is a double so we can use it for higher precision when T is float
 				const double boosted_arg = arg;
+
+				// highly accurate initial guess for the inverse square root, so there shouldn't be many convergence steps needed
+				double init_value = fast_rsqrt(boosted_arg);
 
 				if constexpr (std::is_same_v<T, double>)
 				{
-					// arg is already a double
-					auto current_value = dd_real::dd_real(fast_rsqrt(arg));
+					// 2 steps of saved previous values for detecting 2-cycle oscillations
+					auto current_value = dd_real::dd_real(init_value);
+					auto previous_value = dd_real::dd_real(0.0);
+					auto preprevious_value = dd_real::dd_real(0.0);
 
-					current_value *= (1.5 - ((0.5 * boosted_arg) * (current_value * current_value)));
+					// in case there are more than 2 steps of oscillation, find a cutoff point to stop looping
+					int iterations = 0;
+					constexpr int max_iterations = 10;
 
+					const auto half_arg = dd_real::dd_real(0.5 * boosted_arg);
+					const auto three_halves = dd_real::dd_real(1.5);
+
+					while ((current_value[0] != previous_value[0]) &&
+						   (current_value[0] * current_value[0] * boosted_arg != 1.0))
+					{
+						// update saved values and generate the next one
+						preprevious_value = previous_value;
+						previous_value = current_value;
+						current_value *= (three_halves - (half_arg * current_value * current_value));
+
+						// 2-cycle oscillation detected
+						if (current_value[0] == preprevious_value[0])
+							break;
+
+						// longer cycle safety net
+						if (++iterations >= max_iterations)
+							break;
+					}
 					return static_cast<double>(current_value);
 				}
 				else if constexpr (std::is_same_v<T, float>)
 				{
-					double current_value = fast_rsqrt(boosted_arg);
+					// 2 steps of saved previous values for detecting 2-cycle oscillations
+					double current_value = init_value;
+					double previous_value = 0.0;
+					double preprevious_value = 0.0;
 
-					current_value *= (1.5 - (0.5 * boosted_arg * current_value * current_value));
+					// in case there are more than 2 steps of oscillation, find a cutoff point to stop looping
+					int iterations = 0;
+					constexpr int max_iterations = 10;
 
-					// do a couple more refinements for floating point (this needs testing to see if necessary)
-					current_value *= (1.5 - (0.5 * boosted_arg * current_value * current_value));
-					current_value *= (1.5 - (0.5 * boosted_arg * current_value * current_value));
+					while ((current_value != previous_value) &&
+						   (current_value * current_value * boosted_arg != 1.0))
+					{
+						// update saved values and generate the next one
+						preprevious_value = previous_value;
+						previous_value = current_value;
+						current_value *= (1.5 - (0.5 * boosted_arg * current_value * current_value));
 
+						// 2-cycle oscillation detected
+						if (current_value == preprevious_value)
+							break;
+
+						// longer cycle safety net
+						if (++iterations >= max_iterations)
+							break;
+					}
 					return static_cast<float>(current_value);
+				}
+			}
+
+			template <cxcm::concepts::basic_floating_point T>
+			constexpr T inverse_sqrt(T arg) noexcept
+			{
+				// make sure this is a double so we can use it for higher precision when T is float
+				const double boosted_arg = arg;
+
+				// highly accurate initial guess for the square root, so there shouldn't be many convergence steps needed
+				double init_value = boosted_arg * fast_rsqrt(boosted_arg);
+
+				if constexpr (std::is_same_v<T, double>)
+				{
+					// 2 steps of saved previous values for detecting 2-cycle oscillations
+					auto current_value = dd_real::dd_real(init_value);
+					auto previous_value = dd_real::dd_real(0.0);
+					auto preprevious_value = dd_real::dd_real(0.0);
+
+					// in case there are more than 2 steps of oscillation, find a cutoff point to stop looping
+					int iterations = 0;
+					constexpr int max_iterations = 10;
+
+					constexpr auto one = dd_real::dd_real(1.0);
+					constexpr auto half = dd_real::dd_real(0.5);
+
+					while ((current_value[0] != previous_value[0]) &&
+						   (current_value[0] * current_value[0] != boosted_arg))
+					{
+						// update saved values and generate the next one
+						preprevious_value = previous_value;
+						previous_value = current_value;
+						current_value = half * (current_value + (boosted_arg / current_value));
+
+						// 2-cycle oscillation detected
+						if (current_value[0] == preprevious_value[0])
+							break;
+
+						// longer cycle safety net
+						if (++iterations >= max_iterations)
+							break;
+					}
+					return static_cast<double>(one / current_value);
+				}
+				else if constexpr (std::is_same_v<T, float>)
+				{
+					// 2 steps of saved previous values for detecting 2-cycle oscillations
+					double current_value = init_value;
+					double previous_value = 0.0;
+					double preprevious_value = 0.0;
+
+					// in case there are more than 2 steps of oscillation, find a cutoff point to stop looping
+					int iterations = 0;
+					constexpr int max_iterations = 10;
+
+					while ((current_value != previous_value) &&
+						   (current_value * current_value != boosted_arg))
+					{
+						// update saved values and generate the next one
+						preprevious_value = previous_value;
+						previous_value = current_value;
+						current_value = 0.5 * (current_value + (boosted_arg / current_value));
+
+						// 2-cycle oscillation detected
+						if (current_value == preprevious_value)
+							break;
+
+						// longer cycle safety net
+						if (++iterations >= max_iterations)
+							break;
+					}
+					return static_cast<float>(1.0 / current_value);
 				}
 			}
 
