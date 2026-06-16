@@ -30,7 +30,7 @@ void test_sqrt_float(unsigned int i, long long &above, long long &below, long lo
 	float f = std::bit_cast<float>(i);
 
 	auto val1 = std::sqrt(f);
-	auto val2 = cxcm::detail::constexpr_sqrt(f);
+	auto val2 = cxcm::impl::constexpr_sqrt(f);
 
 	auto res1 = std::bit_cast<unsigned int>(val1);
 	auto res2 = std::bit_cast<unsigned int>(val2);

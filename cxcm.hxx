@@ -32,8 +32,8 @@ namespace cxcm
 	// version info
 
 	constexpr int CXCM_MAJOR_VERSION = 1;
-	constexpr int CXCM_MINOR_VERSION = 2;
-	constexpr int CXCM_PATCH_VERSION = 9;
+	constexpr int CXCM_MINOR_VERSION = 3;
+	constexpr int CXCM_PATCH_VERSION = 0;
 
 	namespace dd_real
 	{
@@ -372,7 +372,7 @@ namespace cxcm
 
 	namespace limits
 	{
-		namespace detail
+		namespace impl
 		{
 			// long doubles vary between compilers and platforms. Windows MSVC and clang on Windows both use
 			// the same representation as double. For gcc and linux, etc., it is often represented by an extended
@@ -396,7 +396,7 @@ namespace cxcm
 				}
 			}
 
-			}	// namespace detail
+			}	// namespace impl
 
 		//
 		// largest_fractional_value
@@ -627,7 +627,7 @@ namespace cxcm
 		// sqrt()
 		//
 
-		namespace detail
+		namespace impl
 		{
 			// "Improving the Accuracy of the Fast Inverse Square Root by Modifying Newton-Raphson Corrections" 2021
 			// https://www.mdpi.com/1099-4300/23/1/86
@@ -868,27 +868,27 @@ namespace cxcm
 				}
 			}
 
-		}	// namespace detail
+		}	// namespace impl
 
 		// constexpr square root, uses higher precision behind the scenes
 		template <cxcm::concepts::basic_floating_point T>
 		constexpr T sqrt(T value) noexcept
 		{
-			return detail::converging_sqrt(value);
+			return impl::converging_sqrt(value);
 		}
 
 		// reciprocal of square root, uses higher precision behind the scenes
 		template <cxcm::concepts::basic_floating_point T>
 		constexpr T rsqrt(T value) noexcept
 		{
-			return detail::inverse_sqrt(value);
+			return impl::inverse_sqrt(value);
 		}
 
 		// fast reciprocal of square root
 		template <cxcm::concepts::basic_floating_point T>
 		constexpr T fast_rsqrt(T value) noexcept
 		{
-			return static_cast<T>(detail::fast_rsqrt(static_cast<double>(value)));
+			return static_cast<T>(impl::fast_rsqrt(static_cast<double>(value)));
 		}
 
 	} // namespace relaxed
@@ -1077,7 +1077,7 @@ namespace cxcm
 	// this namespace is pulled into parent namespace via inline.
 	inline namespace strict
 	{
-		namespace detail
+		namespace impl
 		{
 			//
 			// make_nan_quiet()
@@ -1329,7 +1329,7 @@ namespace cxcm
 
 				if (isnan(value))
 				{
-					return detail::convert_to_quiet_nan(value);
+					return impl::convert_to_quiet_nan(value);
 				}
 				else if (value == std::numeric_limits<T>::infinity())
 				{
@@ -1375,7 +1375,7 @@ namespace cxcm
 
 				if (isnan(value))
 				{
-					[[ unlikely ]] return detail::convert_to_quiet_nan(value);
+					[[ unlikely ]] return impl::convert_to_quiet_nan(value);
 				}
 				else if (value == std::numeric_limits<T>::infinity())
 				{
@@ -1417,7 +1417,7 @@ namespace cxcm
 
 				if (isnan(value))
 				{
-					return detail::convert_to_quiet_nan(value);
+					return impl::convert_to_quiet_nan(value);
 				}
 				else if (value == std::numeric_limits<T>::infinity())
 				{
@@ -1443,7 +1443,7 @@ namespace cxcm
 #pragma float_control(pop)
 #endif
 
-		} // namespace detail
+		} // namespace impl
 
 		//
 		// abs(), fabs()
@@ -1460,7 +1460,7 @@ namespace cxcm
 #if !defined(NDEBUG) && defined(_MSC_VER)
 			if (isnan(new_value))
 			{
-				return detail::convert_to_quiet_nan(new_value);
+				return impl::convert_to_quiet_nan(new_value);
 			}
 			else
 			{
@@ -1512,7 +1512,7 @@ namespace cxcm
 		{
 			if (std::is_constant_evaluated())
 			{
-				return detail::constexpr_trunc(value);
+				return impl::constexpr_trunc(value);
 			}
 			else
 			{
@@ -1537,7 +1537,7 @@ namespace cxcm
 		{
 			if (std::is_constant_evaluated())
 			{
-				return detail::constexpr_floor(value);
+				return impl::constexpr_floor(value);
 			}
 			else
 			{
@@ -1562,7 +1562,7 @@ namespace cxcm
 		{
 			if (std::is_constant_evaluated())
 			{
-				return detail::constexpr_ceil(value);
+				return impl::constexpr_ceil(value);
 			}
 			else
 			{
@@ -1587,7 +1587,7 @@ namespace cxcm
 		{
 			if (std::is_constant_evaluated())
 			{
-				return detail::constexpr_round(value);
+				return impl::constexpr_round(value);
 			}
 			else
 			{
@@ -1612,7 +1612,7 @@ namespace cxcm
 		template <cxcm::concepts::basic_floating_point T>
 		constexpr T fract(T value) noexcept
 		{
-			return detail::constexpr_fract(value);
+			return impl::constexpr_fract(value);
 		}
 
 		template <std::integral T>
@@ -1632,7 +1632,7 @@ namespace cxcm
 		{
 			if (std::is_constant_evaluated())
 			{
-				return detail::constexpr_fmod(x, y);
+				return impl::constexpr_fmod(x, y);
 			}
 			else
 			{
@@ -1657,7 +1657,7 @@ namespace cxcm
 		template <cxcm::concepts::basic_floating_point T>
 		constexpr T round_even(T value) noexcept
 		{
-			return detail::constexpr_round_even(value);
+			return impl::constexpr_round_even(value);
 		}
 
 		template <std::integral T>
@@ -1675,7 +1675,7 @@ namespace cxcm
 		{
 			if (std::is_constant_evaluated())
 			{
-				return detail::constexpr_sqrt(value);
+				return impl::constexpr_sqrt(value);
 			}
 			else
 			{
@@ -1700,7 +1700,7 @@ namespace cxcm
 		{
 			if (std::is_constant_evaluated())
 			{
-				return detail::constexpr_rsqrt(value);
+				return impl::constexpr_rsqrt(value);
 			}
 			else
 			{
@@ -1724,7 +1724,7 @@ namespace cxcm
 		template <cxcm::concepts::basic_floating_point T>
 		constexpr T fast_rsqrt(T value) noexcept
 		{
-			return detail::constexpr_fast_rsqrt(value);
+			return impl::constexpr_fast_rsqrt(value);
 		}
 
 		template <std::integral T>
