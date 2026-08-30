@@ -22,10 +22,10 @@
 
 namespace cxcm
 {
-    //          Copyright David Browne 2020-2026.
-    // Distributed under the Boost Software License, Version 1.0.
-    //    (See accompanying file LICENSE_1_0.txt or copy at
-    //          https://www.boost.org/LICENSE_1_0.txt)
+	//          Copyright David Browne 2020-2026.
+	// Distributed under the Boost Software License, Version 1.0.
+	//    (See accompanying file LICENSE_1_0.txt or copy at
+	//          https://www.boost.org/LICENSE_1_0.txt)
  
 	// https://github.com/davidbrowne/cxcm - cxcm
 
@@ -33,7 +33,7 @@ namespace cxcm
 
 	constexpr int CXCM_MAJOR_VERSION = 1;
 	constexpr int CXCM_MINOR_VERSION = 3;
-	constexpr int CXCM_PATCH_VERSION = 0;
+	constexpr int CXCM_PATCH_VERSION = 1;
 
 	namespace dd_real
 	{
@@ -396,7 +396,7 @@ namespace cxcm
 				}
 			}
 
-			}	// namespace impl
+		}	// namespace impl
 
 		//
 		// largest_fractional_value
@@ -428,23 +428,23 @@ namespace cxcm
 	template<>
 	constexpr bool is_negative_zero(float val) noexcept
 	{
-		return (0x80000000 == std::bit_cast<unsigned int>(val));
+		return (0x80000000u == std::bit_cast<std::uint32_t>(val));
 	}
 
 	template<>
 	constexpr bool is_negative_zero(double val) noexcept
 	{
-		return (0x8000000000000000 == std::bit_cast<unsigned long long>(val));
+		return (0x8000000000000000ull == std::bit_cast<std::uint64_t>(val));
 	}
 
 	template <cxcm::concepts::basic_floating_point T>
 	constexpr inline T negative_zero = T(-0);
 
 	template <>
-	constexpr inline float negative_zero<float> = std::bit_cast<float>(0x80000000);
+	constexpr inline float negative_zero<float> = std::bit_cast<float>(0x80000000u);
 
 	template <>
-	constexpr inline double negative_zero<double> = std::bit_cast<double>(0x8000000000000000);
+	constexpr inline double negative_zero<double> = std::bit_cast<double>(0x8000000000000000ull);
 
 	// don't worry about esoteric input.
 	// much faster than strict or standard when non constant evaluated,
@@ -525,7 +525,7 @@ namespace cxcm
 
 			// negative non-integral value
 			if (truncated_value > value)
-				return (truncated_value - T(1.0f));
+				return (truncated_value - T(1));
 
 			// positive or integral value
 			return truncated_value;
@@ -547,7 +547,7 @@ namespace cxcm
 
 			// positive non-integral value
 			if (truncated_value < value)
-				return (truncated_value + T(1.0f));
+				return (truncated_value + T(1));
 
 			// negative or integral value
 			return truncated_value;
@@ -566,10 +566,10 @@ namespace cxcm
 
 			// positive value, taking care of halfway case.
 			if (value > T(0))
-				return trunc(value + T(0.5f));
+				return trunc(value + T(0.5));
 
 			// negative or zero value, taking care of halfway case.
-			return trunc(value - T(0.5f));
+			return trunc(value - T(0.5));
 		}
 
 		//
@@ -617,10 +617,10 @@ namespace cxcm
 
 			// positive value, taking care of halfway case.
 			if (value > T(0))
-				return trunc(value + T(0.5f));
+				return trunc(value + T(0.5));
 
 			// negative or zero value, taking care of halfway case.
-			return trunc(value - T(0.5f));
+			return trunc(value - T(0.5));
 		}
 
 		//
@@ -1016,15 +1016,17 @@ namespace cxcm
 	template <cxcm::concepts::basic_floating_point T>
 	constexpr bool signbit(T value) noexcept
 	{
+		static_assert(std::numeric_limits<T>::is_iec559);
+
 		if constexpr (sizeof(T) == 4)
 		{
-			unsigned int bits = std::bit_cast<unsigned int>(value);
-			return (bits & 0x80000000) != 0;
+			std::uint32_t bits = std::bit_cast<std::uint32_t>(value);
+			return (bits & 0x80000000u) != 0;
 		}
 		else if constexpr (sizeof(T) == 8)
 		{
-			unsigned long long bits = std::bit_cast<unsigned long long>(value);
-			return (bits & 0x8000000000000000) != 0;
+			std::uint64_t bits = std::bit_cast<std::uint64_t>(value);
+			return (bits & 0x8000000000000000ull) != 0;
 		}
 	}
 
@@ -1038,30 +1040,32 @@ namespace cxcm
 	// copysign()
 	//
 
-	// +0 or -0 for sign is considered as *not* negative
+	// +0 or -0 for sign makes a difference
 	template <cxcm::concepts::basic_floating_point T>
 	constexpr T copysign(T value, T sgn) noexcept
 	{
-		// +0 or -0 for sign is considered as *not* negative
+		static_assert(std::numeric_limits<T>::is_iec559);
+
+		// +0 or -0 for sign makes a difference
 		bool is_neg = signbit(sgn);
 
 		if constexpr (sizeof(T) == 4)
 		{
-			unsigned int bits = std::bit_cast<unsigned int>(value);
+			std::uint32_t bits = std::bit_cast<std::uint32_t>(value);
 			if (is_neg)
-				bits |= 0x80000000;
+				bits |= 0x80000000u;
 			else
-				bits &= 0x7FFFFFFF;
+				bits &= 0x7FFFFFFFu;
 
 			return std::bit_cast<T>(bits);
 		}
 		else if constexpr (sizeof(T) == 8)
 		{
-			unsigned long long bits = std::bit_cast<unsigned long long>(value);
+			std::uint64_t bits = std::bit_cast<std::uint64_t>(value);
 			if (is_neg)
-				bits |= 0x8000000000000000;
+				bits |= 0x8000000000000000ull;
 			else
-				bits &= 0x7FFFFFFFFFFFFFFF;
+				bits &= 0x7FFFFFFFFFFFFFFFull;
 
 			return std::bit_cast<T>(bits);
 		}
@@ -1091,19 +1095,19 @@ namespace cxcm
 				{
 					if constexpr (sizeof(T) == 4)
 					{
-						unsigned int bits = std::bit_cast<unsigned int>(value);
+						std::uint32_t bits = std::bit_cast<std::uint32_t>(value);
 
 						// set the is_quiet bit
-						bits |= 0x00400000;
+						bits |= 0x00400000u;
 
 						return std::bit_cast<T>(bits);
 					}
 					else if constexpr (sizeof(T) == 8)
 					{
-						unsigned long long bits = std::bit_cast<unsigned long long>(value);
+						std::uint64_t bits = std::bit_cast<std::uint64_t>(value);
 
 						// set the is_quiet bit
-						bits |= 0x0008000000000000;
+						bits |= 0x0008000000000000ull;
 
 						return std::bit_cast<T>(bits);
 					}
@@ -1228,11 +1232,11 @@ namespace cxcm
 
 				// halfway rounding can bump into max long long value for truncation
 				// (for extended precision), so be more gentle at the end points.
-				// this works because the largest_fractional_value remainder is T(0.5f).
+				// this works because the largest_fractional_value remainder is T(0.5).
 				if (value == limits::largest_fractional_value<T>)
-					return value + T(0.5f);
+					return value + T(0.5);
 				else if (value == -limits::largest_fractional_value<T>)			// we technically don't have to do this for negative case (one more number in negative range)
-					return value - T(0.5f);
+					return value - T(0.5);
 
 				return relaxed::round(value);
 			}
@@ -1300,11 +1304,11 @@ namespace cxcm
 
 				// halfway rounding can bump into max long long value for truncation
 				// (for extended precision), so be more gentle at the end points.
-				// this works because the largest_fractional_value remainder is T(0.5f).
+				// this works because the largest_fractional_value remainder is T(0.5).
 				if (value == limits::largest_fractional_value<T>)
-					return value + T(0.5f);
+					return value + T(0.5);
 				else if (value == -limits::largest_fractional_value<T>)			// we technically don't have to do this for negative case (one more number in negative range)
-					return value - T(0.5f);
+					return value - T(0.5);
 
 				return relaxed::round_even(value);
 			}

@@ -1,5 +1,8 @@
 # Change Log
 
+### v1.3.1
+* Minor refactoring.
+
 ### v1.3.0
 * Breaking change to internal namespaces: the **detail** namespace has been renamed to **internal** to better reflect its purpose and to avoid confusion with other libraries that may also use a detail namespace. Should not have an affect on users unless they are poking around under the sheets.
 
