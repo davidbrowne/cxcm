@@ -428,13 +428,13 @@ namespace cxcm
 	template<>
 	constexpr bool is_negative_zero(float val) noexcept
 	{
-				return (0x80000000u == std::bit_cast<unsigned int>(val));
+		return (0x80000000u == std::bit_cast<unsigned int>(val));
 	}
 
 	template<>
 	constexpr bool is_negative_zero(double val) noexcept
 	{
-				return (0x8000000000000000ull == std::bit_cast<unsigned long long>(val));
+		return (0x8000000000000000ull == std::bit_cast<unsigned long long>(val));
 	}
 
 	template <cxcm::concepts::basic_floating_point T>
@@ -1016,16 +1016,16 @@ namespace cxcm
 	template <cxcm::concepts::basic_floating_point T>
 	constexpr bool signbit(T value) noexcept
 	{
-		static_assert(std::numeric_limits<T>::is_iec559);
+		static_assert(std::numeric_limits<T>::is_iec559, "IEC 559 required");
 
 		if constexpr (sizeof(T) == 4)
 		{
-					unsigned int bits = std::bit_cast<unsigned int>(value);
+			unsigned int bits = std::bit_cast<unsigned int>(value);
 			return (bits & 0x80000000u) != 0;
 		}
 		else if constexpr (sizeof(T) == 8)
 		{
-					unsigned long long bits = std::bit_cast<unsigned long long>(value);
+			unsigned long long bits = std::bit_cast<unsigned long long>(value);
 			return (bits & 0x8000000000000000ull) != 0;
 		}
 	}
@@ -1051,7 +1051,7 @@ namespace cxcm
 
 		if constexpr (sizeof(T) == 4)
 		{
-					unsigned int bits = std::bit_cast<unsigned int>(value);
+			unsigned int bits = std::bit_cast<unsigned int>(value);
 			if (is_neg)
 				bits |= 0x80000000u;
 			else
@@ -1061,7 +1061,7 @@ namespace cxcm
 		}
 		else if constexpr (sizeof(T) == 8)
 		{
-					unsigned long long bits = std::bit_cast<unsigned long long>(value);
+			unsigned long long bits = std::bit_cast<unsigned long long>(value);
 			if (is_neg)
 				bits |= 0x8000000000000000ull;
 			else
@@ -1095,7 +1095,7 @@ namespace cxcm
 				{
 					if constexpr (sizeof(T) == 4)
 					{
-								unsigned int bits = std::bit_cast<unsigned int>(value);
+						unsigned int bits = std::bit_cast<unsigned int>(value);
 
 						// set the is_quiet bit
 						bits |= 0x00400000u;
@@ -1104,7 +1104,7 @@ namespace cxcm
 					}
 					else if constexpr (sizeof(T) == 8)
 					{
-								unsigned long long bits = std::bit_cast<unsigned long long>(value);
+						unsigned long long bits = std::bit_cast<unsigned long long>(value);
 
 						// set the is_quiet bit
 						bits |= 0x0008000000000000ull;
