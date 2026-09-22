@@ -312,7 +312,7 @@ static void fuzz_fmod(std::mt19937_64& rng, long count)
 
 		// bias half the tests toward similar magnitudes (small quotients), where exactness matters most
 		if (i % 2 == 0)
-			y = std::copysign(std::ldexp(std::fabs(x), -int(rng() % 40)) * T(0.5 + (rng() % 1000) / 1000.0), y);
+			y = std::copysign(std::ldexp(std::fabs(x), -int(rng() % 40)) * T(0.5 + static_cast<double>(rng() % 1000) / 1000.0), y);
 
 		volatile T vx = x, vy = y;
 		const T c = constexpr_fmod(T(vx), T(vy));
