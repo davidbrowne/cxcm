@@ -161,7 +161,7 @@ constexpr T fast_rsqrt(T value) noexcept;
 
 ## Status
 
-Current version: `v1.2.1`
+Current version: `v1.4.0`
 
 Not sure yet how much more to try and make ```constexpr```. This library is meant to support the needs of other libraries, so I suppose things will be added as needed.
 
@@ -182,7 +182,7 @@ This project uses [doctest](https://github.com/onqtam/doctest) for testing, and 
 
 * MSVC 2019 - v16.11
 * MSVC 2022 - v17.12
-* MSVC 2026 - v18.5
+* MSVC 2026 - v18.10
 * gcc 11.4.0
 * clang 16.0.6
 

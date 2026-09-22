@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(cxcm VERSION 0.9.0)
+project(cxcm VERSION 1.4.0)
 
 # file(GLOB SRC_FILES  CONFIGURE_DEPENDS src/*.cxx)
 # file(GLOB TEST_FILES CONFIGURE_DEPENDS tests/*.cxx)
@@ -13,6 +13,7 @@ set(SRC_FILES
 
 set(TEST_FILES
 	cxcm_test.cxx
+	cxcm_fix_tests.cxx
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${TEST_FILES})
