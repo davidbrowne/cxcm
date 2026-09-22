@@ -148,6 +148,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FloatingPointModel>Precise</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -168,6 +169,7 @@
     <Text Include="LICENSE_1_0.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cxcm_fix_tests.cxx" />
     <ClCompile Include="cxcm_test.cxx" />
     <ClCompile Include="main.cxx" />
   </ItemGroup>

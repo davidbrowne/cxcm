@@ -1,5 +1,11 @@
 # Change Log
 
+### v1.4.0
+Big Claude analysis and refactor, fixing bugs and accuracy and compatibility with std::sqrt(), std::fmod, etc., and there are lots of Claude created tests (but not doctest-based). Tests show that using compiler flags for "fast math" is not supported by this library, as functions will not return accurate values.
+
+### v1.3.2
+Reverted changes to various static_cast uses from v1.3.1 related to bit-based types, e.g., changing int32_t back to int.
+
 ### v1.3.1
 * Minor refactoring.
 

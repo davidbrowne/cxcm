@@ -12,6 +12,16 @@
 
 #include "doctest.h"
 
+// print current version number
+namespace
+{
+	void print_cxcm_version()
+	{
+		std::cout << "\ncxcm version: v"
+			<< cxcm::CXCM_MAJOR_VERSION << "." << cxcm::CXCM_MINOR_VERSION << "." << cxcm::CXCM_PATCH_VERSION << "\n\n";
+	}
+}
+
 // not accurate, but gives answers in the ballpark
 double fast_sqrt_simple(double x)
 {
@@ -87,12 +97,16 @@ void sandbox_function()
 	std::cout << "__VERSION__: " << __VERSION__ << "\n";
 #endif
 
+	extern int claude_main();
+	[[ maybe_unused ]] int result = claude_main();
 
 //	test_all_floats_sqrt();
 }
 
 int main(int argc, char *argv[])
 {
+	print_cxcm_version();
+
 	//
 	// fun stuff
 	//
