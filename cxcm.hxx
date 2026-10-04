@@ -622,13 +622,6 @@ namespace cxcm
 			// Claude helped tweak it.
 			// "Improving the Accuracy of the Fast Inverse Square Root by Modifying Newton-Raphson Corrections" 2021
 			// https://www.mdpi.com/1099-4300/23/1/86
-			//
-			// in comparison to inverse_sqrt(double), this method gives pretty good results:
-			//    0 ulps: ~68.58%
-			//    1 ulps: ~31.00%
-			//    2 ulps:  ~0.42%
-			//
-			// depending on compiler/platform, this may not be faster than rsqrt()
 			constexpr double fast_rsqrt(double x) noexcept
 			{
 				double halfx = 0.5 * x;
