@@ -86,6 +86,93 @@ static_assert(cxcm::rsqrt(0x1.a64f7609d6340p+922) == 0x1.8ea23d020eb61p-462);		/
 static_assert(!cxcm::isnan(cxcm::rsqrt(DBL_MAX)) && !cxcm::isnan(cxcm::rsqrt(5e-324)));
 static_assert(cxcm::rsqrt(4.0) == 0.5);
 
+namespace
+{
+	constexpr bool near_rel(double a, double b, double tol) noexcept
+	{
+		const double d = (a > b) ? (a - b) : (b - a);
+		return d <= tol * b;
+	}
+}
+
+// boundary checks for sqrt(), rsqrt(), and fast_rsqrt()
+// sqrt is checked for exact (correctly rounded) equality, rsqrt/fast_rsqrt within a relative tolerance
+
+// smallest subnormal (5e-324)
+static_assert(cxcm::sqrt(0x0.0000000000001p-1022) == 0x1p-537);
+static_assert(near_rel(cxcm::rsqrt(0x0.0000000000001p-1022), 0x1p+537, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x0.0000000000001p-1022), 0x1p+537, 5e-16));
+
+// 1e-315 (subnormal)
+static_assert(cxcm::sqrt(0x0.000000c1069cdp-1022) == 0x1.bc968440cae1dp-524);
+static_assert(near_rel(cxcm::rsqrt(0x0.000000c1069cdp-1022), 0x1.26d11a0bb4ecap+523, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x0.000000c1069cdp-1022), 0x1.26d11a0bb4ecap+523, 5e-16));
+
+// largest subnormal
+static_assert(cxcm::sqrt(0x0.fffffffffffffp-1022) == 0x1.fffffffffffffp-512);
+static_assert(near_rel(cxcm::rsqrt(0x0.fffffffffffffp-1022), 0x1.0000000000001p+511, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x0.fffffffffffffp-1022), 0x1.0000000000001p+511, 5e-16));
+
+// DBL_MIN
+static_assert(cxcm::sqrt(0x1p-1022) == 0x1p-511);
+static_assert(near_rel(cxcm::rsqrt(0x1p-1022), 0x1p+511, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1p-1022), 0x1p+511, 5e-16));
+
+// just above DBL_MIN
+static_assert(cxcm::sqrt(0x1.0000000000001p-1022) == 0x1p-511);
+static_assert(near_rel(cxcm::rsqrt(0x1.0000000000001p-1022), 0x1.fffffffffffffp+510, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1.0000000000001p-1022), 0x1.fffffffffffffp+510, 5e-16));
+
+// just below 2^-900 scaling cutoff
+static_assert(cxcm::sqrt(0x1.fffffffffffffp-901) == 0x1.fffffffffffffp-451);
+static_assert(near_rel(cxcm::rsqrt(0x1.fffffffffffffp-901), 0x1p+450, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1.fffffffffffffp-901), 0x1p+450, 5e-16));
+
+// 2^-900 scaling cutoff
+static_assert(cxcm::sqrt(0x1p-900) == 0x1p-450);
+static_assert(near_rel(cxcm::rsqrt(0x1p-900), 0x1p+450, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1p-900), 0x1p+450, 5e-16));
+
+// just above 2^-900 scaling cutoff
+static_assert(cxcm::sqrt(0x1.0000000000001p-900) == 0x1p-450);
+static_assert(near_rel(cxcm::rsqrt(0x1.0000000000001p-900), 0x1.fffffffffffffp+449, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1.0000000000001p-900), 0x1.fffffffffffffp+449, 5e-16));
+
+// just below 2^996 scaling cutoff
+static_assert(cxcm::sqrt(0x1.fffffffffffffp+995) == 0x1.fffffffffffffp+497);
+static_assert(near_rel(cxcm::rsqrt(0x1.fffffffffffffp+995), 0x1p-498, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1.fffffffffffffp+995), 0x1p-498, 5e-16));
+
+// 2^996 scaling cutoff
+static_assert(cxcm::sqrt(0x1p+996) == 0x1p+498);
+static_assert(near_rel(cxcm::rsqrt(0x1p+996), 0x1p-498, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1p+996), 0x1p-498, 5e-16));
+
+// just above 2^996 scaling cutoff
+static_assert(cxcm::sqrt(0x1.0000000000001p+996) == 0x1p+498);
+static_assert(near_rel(cxcm::rsqrt(0x1.0000000000001p+996), 0x1.fffffffffffffp-499, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1.0000000000001p+996), 0x1.fffffffffffffp-499, 5e-16));
+
+// 2^997 (split() overflow threshold area)
+static_assert(cxcm::sqrt(0x1p+997) == 0x1.6a09e667f3bcdp+498);
+static_assert(near_rel(cxcm::rsqrt(0x1p+997), 0x1.6a09e667f3bcdp-499, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1p+997), 0x1.6a09e667f3bcdp-499, 5e-16));
+
+// 2^1000
+static_assert(cxcm::sqrt(0x1p+1000) == 0x1p+500);
+static_assert(near_rel(cxcm::rsqrt(0x1p+1000), 0x1p-500, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1p+1000), 0x1p-500, 5e-16));
+
+// 1e301
+static_assert(cxcm::sqrt(0x1.ddd4baa009303p+999) == 0x1.ee9eda5891d4dp+499);
+static_assert(near_rel(cxcm::rsqrt(0x1.ddd4baa009303p+999), 0x1.08febd0698959p-500, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1.ddd4baa009303p+999), 0x1.08febd0698959p-500, 5e-16));
+
+// DBL_MAX
+static_assert(cxcm::sqrt(0x1.fffffffffffffp+1023) == 0x1.fffffffffffffp+511);
+static_assert(near_rel(cxcm::rsqrt(0x1.fffffffffffffp+1023), 0x1p-512, 4e-16));
+static_assert(near_rel(cxcm::fast_rsqrt(0x1.fffffffffffffp+1023), 0x1p-512, 5e-16));
+
 // ------------------------------------------------------------------------------------------------
 // part 2 + 3: runtime comparison with the standard library
 // ------------------------------------------------------------------------------------------------
