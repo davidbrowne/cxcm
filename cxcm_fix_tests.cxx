@@ -122,36 +122,43 @@ static_assert(near_rel(cxcm::fast_rsqrt(0x1p-1022), 0x1p+511, 5e-16));
 static_assert(cxcm::sqrt(0x1.0000000000001p-1022) == 0x1p-511);
 static_assert(near_rel(cxcm::rsqrt(0x1.0000000000001p-1022), 0x1.fffffffffffffp+510, 4e-16));
 static_assert(near_rel(cxcm::fast_rsqrt(0x1.0000000000001p-1022), 0x1.fffffffffffffp+510, 5e-16));
+static_assert(cxcm::relaxed::impl::inverse_sqrt(0x1.0000000000001p-1022) == cxcm::relaxed::impl::converging_inverse_sqrt(0x1.0000000000001p-1022));
 
 // just below 2^-900 scaling cutoff
 static_assert(cxcm::sqrt(0x1.fffffffffffffp-901) == 0x1.fffffffffffffp-451);
 static_assert(near_rel(cxcm::rsqrt(0x1.fffffffffffffp-901), 0x1p+450, 4e-16));
 static_assert(near_rel(cxcm::fast_rsqrt(0x1.fffffffffffffp-901), 0x1p+450, 5e-16));
+static_assert(cxcm::relaxed::impl::inverse_sqrt(0x1.fffffffffffffp-901) == cxcm::relaxed::impl::converging_inverse_sqrt(0x1.fffffffffffffp-901));
 
 // 2^-900 scaling cutoff
 static_assert(cxcm::sqrt(0x1p-900) == 0x1p-450);
 static_assert(near_rel(cxcm::rsqrt(0x1p-900), 0x1p+450, 4e-16));
 static_assert(near_rel(cxcm::fast_rsqrt(0x1p-900), 0x1p+450, 5e-16));
+static_assert(cxcm::relaxed::impl::inverse_sqrt(0x1p-900) == cxcm::relaxed::impl::converging_inverse_sqrt(0x1p-900));
 
 // just above 2^-900 scaling cutoff
 static_assert(cxcm::sqrt(0x1.0000000000001p-900) == 0x1p-450);
 static_assert(near_rel(cxcm::rsqrt(0x1.0000000000001p-900), 0x1.fffffffffffffp+449, 4e-16));
 static_assert(near_rel(cxcm::fast_rsqrt(0x1.0000000000001p-900), 0x1.fffffffffffffp+449, 5e-16));
+static_assert(cxcm::relaxed::impl::inverse_sqrt(0x1.0000000000001p-900) == cxcm::relaxed::impl::converging_inverse_sqrt(0x1.0000000000001p-900));
 
 // just below 2^996 scaling cutoff
 static_assert(cxcm::sqrt(0x1.fffffffffffffp+995) == 0x1.fffffffffffffp+497);
 static_assert(near_rel(cxcm::rsqrt(0x1.fffffffffffffp+995), 0x1p-498, 4e-16));
 static_assert(near_rel(cxcm::fast_rsqrt(0x1.fffffffffffffp+995), 0x1p-498, 5e-16));
+static_assert(cxcm::relaxed::impl::inverse_sqrt(0x1.fffffffffffffp+995) == cxcm::relaxed::impl::converging_inverse_sqrt(0x1.fffffffffffffp+995));
 
 // 2^996 scaling cutoff
 static_assert(cxcm::sqrt(0x1p+996) == 0x1p+498);
 static_assert(near_rel(cxcm::rsqrt(0x1p+996), 0x1p-498, 4e-16));
 static_assert(near_rel(cxcm::fast_rsqrt(0x1p+996), 0x1p-498, 5e-16));
+static_assert(cxcm::relaxed::impl::inverse_sqrt(0x1p+996) == cxcm::relaxed::impl::converging_inverse_sqrt(0x1p+996));
 
 // just above 2^996 scaling cutoff
 static_assert(cxcm::sqrt(0x1.0000000000001p+996) == 0x1p+498);
 static_assert(near_rel(cxcm::rsqrt(0x1.0000000000001p+996), 0x1.fffffffffffffp-499, 4e-16));
 static_assert(near_rel(cxcm::fast_rsqrt(0x1.0000000000001p+996), 0x1.fffffffffffffp-499, 5e-16));
+static_assert(cxcm::relaxed::impl::inverse_sqrt(0x1.0000000000001p+996) == cxcm::relaxed::impl::converging_inverse_sqrt(0x1.0000000000001p+996));
 
 // 2^997 (split() overflow threshold area)
 static_assert(cxcm::sqrt(0x1p+997) == 0x1.6a09e667f3bcdp+498);
@@ -172,6 +179,30 @@ static_assert(near_rel(cxcm::fast_rsqrt(0x1.ddd4baa009303p+999), 0x1.08febd06989
 static_assert(cxcm::sqrt(0x1.fffffffffffffp+1023) == 0x1.fffffffffffffp+511);
 static_assert(near_rel(cxcm::rsqrt(0x1.fffffffffffffp+1023), 0x1p-512, 4e-16));
 static_assert(near_rel(cxcm::fast_rsqrt(0x1.fffffffffffffp+1023), 0x1p-512, 5e-16));
+
+// mirrors the scaling in the strict wrapper so the relaxed functions only ever see [2^-900, 2^996]
+constexpr double scaled_converging_rsqrt(double x) noexcept
+{
+	if (x < 0x1p-900)
+		return cxcm::relaxed::impl::converging_inverse_sqrt(x * 0x1p+200) * 0x1p+100;
+	else if (x > 0x1p+996)
+		return cxcm::relaxed::impl::converging_inverse_sqrt(x * 0x1p-100) * 0x1p-50;
+
+	return cxcm::relaxed::impl::converging_inverse_sqrt(x);
+}
+
+static_assert(scaled_converging_rsqrt(0x0.0000000000001p-1022)   == cxcm::rsqrt(0x0.0000000000001p-1022));
+static_assert(scaled_converging_rsqrt(1e-315)   == cxcm::rsqrt(1e-315));
+static_assert(scaled_converging_rsqrt(0x0.fffffffffffffp-1022)   == cxcm::rsqrt(0x0.fffffffffffffp-1022));
+static_assert(scaled_converging_rsqrt(0x1p-1022) == cxcm::rsqrt(0x1p-1022));
+static_assert(scaled_converging_rsqrt(0x1p+997) == cxcm::rsqrt(0x1p+997));
+static_assert(scaled_converging_rsqrt(0x1p+1000) == cxcm::rsqrt(0x1p+1000));
+static_assert(scaled_converging_rsqrt(1e301)    == cxcm::rsqrt(1e301));
+static_assert(scaled_converging_rsqrt(DBL_MAX)  == cxcm::rsqrt(DBL_MAX));
+
+// ...and so on for the rest of the boundary values
+
+
 
 // ------------------------------------------------------------------------------------------------
 // part 2 + 3: runtime comparison with the standard library
